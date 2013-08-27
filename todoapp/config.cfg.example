@@ -1,0 +1,5 @@
+DEBUG = True
+#database setting
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost/to_do'
+SQLALCHEMY_ECHO=False
+SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT1346'
