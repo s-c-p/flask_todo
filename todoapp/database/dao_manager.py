@@ -1,4 +1,4 @@
-from . import TodoMemo
+from todoapp.database import TodoMemo
 
 
 class DAOManager(object):

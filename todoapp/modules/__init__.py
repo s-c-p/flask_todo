@@ -1,2 +1,2 @@
-from .config import Config
-from .memo_api import MemoAPI
+from todoapp.modules.config import Config
+from todoapp.modules.memo_api import MemoAPI

@@ -1,1 +1,1 @@
-from .sesto_app import Sesto
+from todoapp.sesto.sesto_app import Sesto

@@ -1,6 +1,6 @@
-from .sesto import Sesto
-from .database import init_db
-from .modules import config, MemoAPI
+from todoapp.sesto import Sesto
+from todoapp.database import init_db
+from todoapp.modules import config, MemoAPI
 
 
 def create_app(config_filename):

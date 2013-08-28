@@ -1,5 +1,5 @@
 import datetime
-from . import db
+from todoapp.database import db
 
 
 class TodoMemo(db.Model):
