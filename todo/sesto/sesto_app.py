@@ -1,4 +1,5 @@
 from flask import Flask
+from todo.sesto import log_config
 
 
 class Sesto(Flask):
@@ -13,25 +14,16 @@ class Sesto(Flask):
                          instance_relative_config)
 
         self.setting_modules(blueprints_modules)
-        self.logger_setting()
 
     def setting_modules(self, modules):
         """ register Blueprint modules"""
         for module, url_prefix in modules:
             self.register_blueprint(module, url_prefix=url_prefix)
 
-    def logger_setting(self):
-        if not self.debug:
-            import logging
-            from logging import FileHandler, Formatter
+    def init_logger(self):
 
-            file_handler = FileHandler('log/sesto.log')
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(Formatter(
-                '%(asctime)s %(levelname)s: %(message)s '
-                '[in %(pathname)s:%(lineno)d]'
-            ))
-            self.logger.addHandler(file_handler)
+        self.logger.addHandler(log_config.create_log_file_handler(
+                               self.config.get('LOG_PATH')))
 
     def register_api(self, view, endpoint, url, pk='id', pk_type='int'):
         view_func = view.as_view(endpoint)
