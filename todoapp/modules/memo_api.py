@@ -12,15 +12,8 @@ class MemoAPI(MethodView):
         else:
             memos = DAOManager.get_todo_memos(user_id)
 
-            current_app.logger.debug(memos)
-
-            for todo_memo in memos:
-                current_app.logger.debug('{0}:{1}:{2}'.format(
-                                         todo_memo, todo_memo.id, todo_memo.memo))
-
-            current_app.logger.debug(json.dumps(memos,
-                                     default=lambda o: o.__dict__))
-            return jsonify(memos=json.dumps(memos))
+            return jsonify(memos=json.dumps(
+                           [json.dumps(memo.serialize) for memo in memos]))
 
     def post(self):
         # create a new memo

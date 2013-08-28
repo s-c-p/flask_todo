@@ -22,3 +22,20 @@ class TodoMemo(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    def dump_datetime(self, value):
+        """Deserialize datetime object into string form for JSON processing."""
+        if value is None:
+            return None
+        return [value.strftime("%Y-%m-%d"), value.strftime("%H:%M:%S")]
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'memo' : self.memo,
+            'state': self.state,
+            'create_date': self.dump_datetime(self.create_date)
+        }

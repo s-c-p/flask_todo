@@ -36,6 +36,19 @@ class TodoAppTestCase(unittest.TestCase):
     def get_memos(self, user_id):
         return self.app.get('/memos/' + str(user_id), follow_redirects=True)
 
+    def test_memo_opration(self):
+        rv = self.add_memo(1, 'test')
+        result = json.loads(str(rv.data, 'utf-8'))
+        assert 0 == result['status']
+
+        rv = self.get_memos(1)
+        result = json.loads(str(rv.data, 'utf-8'))
+
+        memos = [json.loads(memo) for memo in json.loads(result.get('memos'))]
+
+        for memo in memos:
+            assert 1 == memo['user_id']
+            assert 'test' == memo['memo']
 
 if __name__ == '__main__':
     unittest.main()
