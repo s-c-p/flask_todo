@@ -1,6 +1,6 @@
 from flask.views import MethodView
 from flask import request, jsonify, json, current_app
-from todoapp.database import TodoMemo, DAOManager
+from todo.database import TodoMemo, DAOManager
 
 
 class MemoAPI(MethodView):

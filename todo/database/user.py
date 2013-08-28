@@ -1,4 +1,4 @@
-from todoapp.database import db
+from todo.database import db
 
 
 class User(db.Model):

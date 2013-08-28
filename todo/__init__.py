@@ -1,6 +1,6 @@
-from todoapp.sesto import Sesto
-from todoapp.database import init_db
-from todoapp.modules import MemoAPI
+from todo.sesto import Sesto
+from todo.database import init_db
+from todo.modules import MemoAPI
 
 
 def create_app(config_filename):
@@ -12,4 +12,4 @@ def create_app(config_filename):
 
 app = create_app('config.cfg')
 
-import todoapp.views.login_views
+import todo.views.login_views

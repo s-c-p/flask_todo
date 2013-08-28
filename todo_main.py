@@ -1,4 +1,4 @@
-from todoapp import app
+from todo import app
 
 
 def main():

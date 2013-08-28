@@ -1,6 +1,6 @@
 from flask import session, redirect, url_for, escape, request
-from todoapp import app
-from todoapp.database import User
+from todo import app
+from todo.database import User
 
 
 @app.route('/')

@@ -1,13 +1,13 @@
 import unittest
 from flask import json
-import todoapp
+import todo
 
 
-class TodoAppTestCase(unittest.TestCase):
+class TodoTestCase(unittest.TestCase):
 
     def setUp(self):
-        todoapp.app.config['TESTING'] = True
-        self.app = todoapp.app.test_client()
+        todo.app.config['TESTING'] = True
+        self.app = todo.app.test_client()
 
     def tearDown(self):
         pass
