@@ -6,6 +6,8 @@ import todo
 class TodoTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.username = 'admin'
+        self.password = '111111'
         todo.app.config['TESTING'] = True
         self.app = todo.app.test_client()
 
@@ -22,21 +24,25 @@ class TodoTestCase(unittest.TestCase):
         return self.app.get('/logout', follow_redirects=True)
 
     def test_login_logout(self):
-        rv = self.login('admin', '111111')
+        rv = self.login(self.username, self.password)
         assert b'You were logged in' in rv.data
         rv = self.logout()
         assert b'You were logged out' in rv.data
 
     def add_memo(self, user_id, memo):
-        return self.app.post('/memos/', data=dict(
-            user_id=user_id,
+        return self.app.post('/user/' + str(user_id) + '/memos/', data=dict(
             memo=memo
         ), follow_redirects=False)
 
     def get_memos(self, user_id):
-        return self.app.get('/memos/' + str(user_id), follow_redirects=True)
+        return self.app.get('/user/' + str(user_id) + '/memos/',
+                            follow_redirects=True)
 
-    def test_memo_opration(self):
+    def delete_memo(self, user_id, memo_id):
+        return self.app.delete('/user/' + str(user_id) + '/memos/' + str(memo_id),
+            follow_redirects=True)
+
+    def test_memo_operation(self):
         rv = self.add_memo(1, 'test')
         result = json.loads(str(rv.data, 'utf-8'))
         assert 0 == result['status']
@@ -49,6 +55,11 @@ class TodoTestCase(unittest.TestCase):
         for memo in memos:
             assert 1 == memo['user_id']
             assert 'test' == memo['memo']
+
+        for memo in memos:
+            rv = self.delete_memo(memo['user_id'], memo['id'])
+            delete_result = json.loads(str(rv.data, 'utf-8'))
+            assert 0 == delete_result['status']
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

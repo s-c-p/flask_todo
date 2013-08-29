@@ -23,6 +23,10 @@ class TodoMemo(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def dump_datetime(self, value):
         """Deserialize datetime object into string form for JSON processing."""
         if value is None:
