@@ -1,7 +1,6 @@
 import unittest
 from flask import json
 import todo
-from todo.modules import User
 
 
 class TodoTestCase(unittest.TestCase):
@@ -9,11 +8,24 @@ class TodoTestCase(unittest.TestCase):
     def setUp(self):
         self.username = 'admin'
         self.password = '111111'
+        self.new_memo = 'new_memo'
         todo.app.config['TESTING'] = True
         self.app = todo.app.test_client()
 
     def tearDown(self):
         pass
+
+    def register_user(self, username, password):
+        return self.app.post('/users/', data=dict(
+            username=username,
+            password=password
+        ), follow_redirects=True)
+
+    def get_user(self, username):
+        return self.app.get('/users/' + username, follow_redirects=True)
+
+    def delete_user(self, username):
+        return self.app.delete('/users/' + username, follow_redirects=True)
 
     def login(self, username, password):
         return self.app.post('/login', data=dict(
@@ -25,13 +37,14 @@ class TodoTestCase(unittest.TestCase):
         return self.app.get('/logout', follow_redirects=True)
 
     def test_login_logout(self):
-        rv = self.login(self.username, self.password)
-        assert b'You were logged in' in rv.data
-        rv = self.logout()
-        assert b'You were logged out' in rv.data
+        rv = self.register_user(self.username, self.password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(0, result['status'], 'register_user error')
 
-    def get_user(self, username):
-        return self.app.get('/users/' + username, follow_redirects=True)
+        rv = self.login(self.username, self.password)
+        self.assertIn(b'You were logged in', rv.data, 'logged in error')
+        rv = self.logout()
+        self.assertIn(b'You were logged out', rv.data, 'logged out error')
 
     def add_memo(self, user_id, memo):
         return self.app.post('/user/' + str(user_id) + '/memos/', data=dict(
@@ -43,42 +56,45 @@ class TodoTestCase(unittest.TestCase):
                             follow_redirects=True)
 
     def delete_memo(self, user_id, memo_id):
-        return self.app.delete('/user/' + str(user_id) + '/memos/' + str(memo_id),
+        return self.app.delete(
+            '/user/' + str(user_id) + '/memos/' + str(memo_id),
             follow_redirects=True)
 
     def update_memo(self, user_id, memo_id, memo):
         return self.app.put('/user/' + str(user_id) + '/memos/' + str(memo_id),
-        data=dict(
-            memo=memo
-        ), follow_redirects=True)
+                            data=dict(
+                            memo=memo
+                            ), follow_redirects=True)
 
     def test_memo_operation(self):
         rv = self.get_user(self.username)
         result = json.loads(str(rv.data, 'utf-8'))
         user = json.loads(result['user'])
-        assert self.username == user['username']
+        self.assertEqual(self.username, user['username'], 'get_user error')
 
         rv = self.add_memo(user['id'], 'test')
         result = json.loads(str(rv.data, 'utf-8'))
-        assert 0 == result['status']
+        self.assertEqual(0, result['status'], 'add_memo error')
 
         rv = self.get_memos(user['id'])
         result = json.loads(str(rv.data, 'utf-8'))
 
         memos = [json.loads(memo) for memo in json.loads(result.get('memos'))]
 
-        assert 0 < len(memos)
+        self.assertLess(0, len(memos), 'get_memos erro')
 
         for memo in memos:
-            rv = self.update_memo(memo['user_id'], memo['id'], 'new_memo')
+            rv = self.update_memo(memo['user_id'], memo['id'], self.new_memo)
             update_result = json.loads(str(rv.data, 'utf-8'))
             new_memo = json.loads(update_result['memo'])
-            assert 'new_memo' == new_memo['memo']
+            self.assertEqual(self.new_memo, new_memo['memo'], 'update_memo error')
 
         for memo in memos:
             rv = self.delete_memo(memo['user_id'], memo['id'])
             delete_result = json.loads(str(rv.data, 'utf-8'))
-            assert 0 == delete_result['status']
+            self.assertEqual(0, delete_result['status'], 'delete_memo error')
+
+        self.delete_user(self.username)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

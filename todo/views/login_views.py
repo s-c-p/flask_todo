@@ -40,11 +40,43 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
-@app.route('/users/<username>')
+
+@app.route('/users/', methods=['GET', 'POST'])
+@app.route('/users/<username>', methods=['GET', 'POST', 'DELETE'])
 def users(username=None):
 
-    if username is not None:
-        user = User.query.filter_by(username=username).first()
-        return jsonify(user=json.dumps(user.serialize))
-    else:
-        return jsonify(user=None)
+    if request.method == 'GET':
+
+        if username is not None:
+            user = User.query.filter_by(username=username).first()
+            return jsonify(user=json.dumps(user.serialize))
+
+        else:
+            return jsonify(user=None)
+
+    elif request.method == 'POST':
+
+        if request.form['username'] is None or request.form['password'] is None:
+            return jsonify(status=-1)
+
+        user = User.query.filter_by(username=request.form['username']).first()
+
+        if user is not None:
+            return jsonify(status=-1)
+
+        user = User(request.form['username'], request.form['password'])
+        user.save()
+        return jsonify(status=0)
+
+    elif request.method == 'DELETE':
+
+        if username is not None:
+            user = User.query.filter_by(username=username).first()
+
+            if user is not None:
+                user.delete()
+                return jsonify(status=0)
+            else:
+               return jsonify(status=-1)
+        else:
+            return jsonify(status=-1)
