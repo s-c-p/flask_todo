@@ -1,4 +1,4 @@
-from flask import session, redirect, url_for, escape, request
+from flask import session, redirect, url_for, escape, request, json, jsonify
 from todo import app
 from todo.modules import User
 
@@ -39,3 +39,12 @@ def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return redirect(url_for('index'))
+
+@app.route('/users/<username>')
+def users(username=None):
+
+    if username is not None:
+        user = User.query.filter_by(username=username).first()
+        return jsonify(user=json.dumps(user.serialize))
+    else:
+        return jsonify(user=None)

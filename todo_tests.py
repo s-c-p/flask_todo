@@ -1,6 +1,7 @@
 import unittest
 from flask import json
 import todo
+from todo.modules import User
 
 
 class TodoTestCase(unittest.TestCase):
@@ -29,6 +30,9 @@ class TodoTestCase(unittest.TestCase):
         rv = self.logout()
         assert b'You were logged out' in rv.data
 
+    def get_user(self, username):
+        return self.app.get('/users/' + username, follow_redirects=True)
+
     def add_memo(self, user_id, memo):
         return self.app.post('/user/' + str(user_id) + '/memos/', data=dict(
             memo=memo
@@ -49,11 +53,16 @@ class TodoTestCase(unittest.TestCase):
         ), follow_redirects=True)
 
     def test_memo_operation(self):
-        rv = self.add_memo(1, 'test')
+        rv = self.get_user(self.username)
+        result = json.loads(str(rv.data, 'utf-8'))
+        user = json.loads(result['user'])
+        assert self.username == user['username']
+
+        rv = self.add_memo(user['id'], 'test')
         result = json.loads(str(rv.data, 'utf-8'))
         assert 0 == result['status']
 
-        rv = self.get_memos(1)
+        rv = self.get_memos(user['id'])
         result = json.loads(str(rv.data, 'utf-8'))
 
         memos = [json.loads(memo) for memo in json.loads(result.get('memos'))]
