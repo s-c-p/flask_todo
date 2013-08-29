@@ -30,6 +30,12 @@ class MemoAPI(MethodView):
         else:
             return jsonify(status=-1)
 
-    def put(self, user_id):
-        # update a single user
-        pass
+    def put(self, user_id, memo_id):
+        todo_memo = TodoMemo.query.filter_by(id=memo_id).first()
+
+        if todo_memo is not None:
+            todo_memo.memo = request.form['memo']
+            todo_memo.save()
+            return jsonify(memo=json.dumps(todo_memo.serialize))
+        else:
+            return jsonify(memo=None)

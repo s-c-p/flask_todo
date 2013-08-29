@@ -42,6 +42,12 @@ class TodoTestCase(unittest.TestCase):
         return self.app.delete('/user/' + str(user_id) + '/memos/' + str(memo_id),
             follow_redirects=True)
 
+    def update_memo(self, user_id, memo_id, memo):
+        return self.app.put('/user/' + str(user_id) + '/memos/' + str(memo_id),
+        data=dict(
+            memo=memo
+        ), follow_redirects=True)
+
     def test_memo_operation(self):
         rv = self.add_memo(1, 'test')
         result = json.loads(str(rv.data, 'utf-8'))
@@ -52,9 +58,13 @@ class TodoTestCase(unittest.TestCase):
 
         memos = [json.loads(memo) for memo in json.loads(result.get('memos'))]
 
+        assert 0 < len(memos)
+
         for memo in memos:
-            assert 1 == memo['user_id']
-            assert 'test' == memo['memo']
+            rv = self.update_memo(memo['user_id'], memo['id'], 'new_memo')
+            update_result = json.loads(str(rv.data, 'utf-8'))
+            new_memo = json.loads(update_result['memo'])
+            assert 'new_memo' == new_memo['memo']
 
         for memo in memos:
             rv = self.delete_memo(memo['user_id'], memo['id'])
