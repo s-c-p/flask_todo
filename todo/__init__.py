@@ -6,13 +6,15 @@ def create_app(config_filename):
     sesto_app = Sesto(__name__)
     sesto_app.config.from_pyfile(config_filename, silent=True)
     sesto_app.init_logger()
-    db.init_app(sesto_app)
-
-    with sesto_app.test_request_context():
-        db.create_all()
-
+    init_db(sesto_app)
     pluggable_views_setting(sesto_app)
     return sesto_app
+
+def init_db(app):
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
 
 def pluggable_views_setting(app):
     view_func = MemoAPI.as_view('memo_api')

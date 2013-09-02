@@ -1,6 +1,7 @@
 import unittest
 from flask import json
 import todo
+from todo.modules import db
 
 
 class TodoTestCase(unittest.TestCase):
@@ -14,6 +15,15 @@ class TodoTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def setUpClass():
+        todo.app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/to_do2'
+        todo.init_db(todo.app)
+
+    def tearDownClass():
+        with todo.app.app_context():
+            db.session.remove()
+            db.drop_all()
 
     def register_user(self, username, password):
         return self.app.post('/users/', data=dict(
