@@ -62,8 +62,7 @@ class MemoAPI(MethodView):
     def post(self, user_id):
         todo_memo = TodoMemo(user_id, request.form['memo'])
         todo_memo.save()
-
-        return jsonify(status=0)
+        return jsonify(todo_memo_id=todo_memo.id)
 
     def delete(self, user_id, memo_id):
         todo_memo = TodoMemo.query.filter_by(id=memo_id).first()

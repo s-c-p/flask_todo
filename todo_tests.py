@@ -84,7 +84,7 @@ class TodoTestCase(unittest.TestCase):
 
         rv = self.add_memo(user['id'], 'test')
         result = json.loads(str(rv.data, 'utf-8'))
-        self.assertEqual(0, result['status'], 'add_memo error')
+        self.assertNotEqual(0, result['todo_memo_id'], 'add_memo error')
 
         rv = self.get_memos(user['id'])
         result = json.loads(str(rv.data, 'utf-8'))
