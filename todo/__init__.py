@@ -1,4 +1,4 @@
-from flask import session, redirect, url_for, escape, request, json, jsonify
+from flask import session, redirect, url_for, escape, request, json, jsonify, make_response, send_file
 from todo.sesto import Sesto
 from todo.modules import db, MemoAPI, User
 
@@ -32,7 +32,8 @@ app = create_app('config.cfg')
 def index():
     if 'username' in session:
         return 'You were logged in %s' % escape(session['username'])
-    return 'You were logged out'
+    #return make_response(open('templates/index.html').read())
+    return send_file('templates/index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
