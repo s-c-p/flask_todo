@@ -80,7 +80,18 @@ todomvc.controller('TodoCtrl', function TodoCtrl($scope, $http, $location, todoS
     };
 
     $scope.removeTodo = function (todo) {
-        todos.splice(todos.indexOf(todo), 1);
+        console.log('todo_memo_id : ' + todo.todo_memo_id)
+
+        $http.delete('/user/1/memos/' + todo.todo_memo_id).
+            success(function(data, status) {
+
+                if (data['status'] === 0) {
+                    todos.splice(todos.indexOf(todo), 1);
+                }
+            }).
+            error(function(data, status) {
+                console.log('edata : ' + data);
+        });
     };
 
     $scope.clearCompletedTodos = function () {
