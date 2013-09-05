@@ -1,6 +1,7 @@
 import datetime
 from flask.views import MethodView
 from flask import request, jsonify, json, current_app
+from flask import make_response
 from todo.modules import db
 
 
@@ -53,8 +54,11 @@ class MemoAPI(MethodView):
         if memo_id is None:
             memos = TodoMemo.query.filter_by(user_id=user_id).all()
 
-            return jsonify(memos=json.dumps(
-                           [json.dumps(memo.serialize) for memo in memos]))
+            response = make_response(json.dumps(memos, default=to_json))
+            response.headers['Content-Type'] = 'application/json'
+            return response
+            #return jsonify(memos=json.dumps(
+            #               [json.dumps(memo.serialize) for memo in memos]))
 
         else:
             return 'a single memo of user'
@@ -82,3 +86,22 @@ class MemoAPI(MethodView):
             return jsonify(memo=json.dumps(todo_memo.serialize))
         else:
             return jsonify(memo=None)
+
+
+def to_json(python_object):
+
+    if isinstance(python_object, TodoMemo):
+        return {
+            'id': python_object.id,
+            'user_id': python_object.user_id,
+            'memo': python_object.memo,
+            'state': python_object.state,
+            'create_date': python_object.create_date
+        }
+
+    if isinstance(python_object, datetime.date):
+        if python_object is None:
+            return None
+        return "{0} {1}".format(python_object.strftime("%Y-%m-%d"),
+                                python_object.strftime("%H:%M:%S"))
+
