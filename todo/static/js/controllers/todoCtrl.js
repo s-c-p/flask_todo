@@ -89,10 +89,21 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
 
     $scope.doneEditing = function (todo) {
         $scope.editedTodo = null;
-        todo.title = todo.title.trim();
 
-        if (!todo.title) {
+        if (!todo.title.trim()) {
+            todo.title = todo.title.trim();
             $scope.removeTodo(todo);
+
+        } else {
+            var memo_data = 'memo=' + todo.title.trim();
+            $http.defaults.headers.put["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.put('/user/1/memos/' + todo.todo_memo_id,  memo_data).
+                success(function(data, status) {
+                    todo.title = todo.title.trim();
+                }).
+                error(function(data, status) {
+                    console.log('edata : ' + data);
+            });
         }
     };
 
