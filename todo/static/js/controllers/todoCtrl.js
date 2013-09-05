@@ -7,7 +7,29 @@
  * - exposes the model to the template and provides event handlers
  */
 todomvc.controller('TodoCtrl', function TodoCtrl($scope, $http, $location, todoStorage, filterFilter) {
-    var todos = $scope.todos = todoStorage.get();
+    getMemos($scope, $http, $location, todoStorage, filterFilter);
+});
+
+function getMemos($scope, $http, $location, todoStorage, filterFilter) {
+    $http.get('/user/1/memos/').
+        success(function(data, status) {
+            set_controller($scope, $http, $location, todoStorage, filterFilter, data);
+        }).
+        error(function(data, status) {
+            console.log('edata : ' + data);
+    });
+}
+
+function set_controller($scope, $http, $location, todoStorage, filterFilter, memos) {
+    var todos = $scope.todos = [];
+
+    for (var i = memos.length - 1; i >= 0; i--) {
+        todos.push({
+            todo_memo_id : memos[i]["id"],
+            title: memos[i]["memo"],
+            completed: memos[i]['state'] == 'incomplete' ? false : true
+        });
+    };
 
     $scope.newTodo = '';
     $scope.editedTodo = null;
@@ -105,4 +127,4 @@ todomvc.controller('TodoCtrl', function TodoCtrl($scope, $http, $location, todoS
             todo.completed = completed;
         });
     };
-});
+}
