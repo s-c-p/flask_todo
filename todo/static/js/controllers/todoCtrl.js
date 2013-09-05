@@ -29,7 +29,7 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
             title: memos[i]["memo"],
             completed: memos[i]['state'] == 'incomplete' ? false : true
         });
-    };
+    }
 
     $scope.newTodo = '';
     $scope.editedTodo = null;
@@ -38,9 +38,6 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
         $scope.remainingCount = filterFilter(todos, { completed: false }).length;
         $scope.completedCount = todos.length - $scope.remainingCount;
         $scope.allChecked = !$scope.remainingCount;
-        if (newValue !== oldValue) { // This prevents unneeded calls to the local storage
-            todoStorage.put(todos);
-        }
     }, true);
 
     if ($location.path() === '') {
@@ -95,15 +92,7 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
             $scope.removeTodo(todo);
 
         } else {
-            var memo_data = 'memo=' + todo.title.trim();
-            $http.defaults.headers.put["Content-Type"] = "application/x-www-form-urlencoded";
-            $http.put('/user/1/memos/' + todo.todo_memo_id,  memo_data).
-                success(function(data, status) {
-                    todo.title = todo.title.trim();
-                }).
-                error(function(data, status) {
-                    console.log('edata : ' + data);
-            });
+            updataMemoData($http, todo);
         }
     };
 
@@ -138,4 +127,22 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
             todo.completed = completed;
         });
     };
+
+    $scope.changeTodoStatus = function (todo) {
+        updataMemoData($http, todo);
+    };
+}
+
+function updataMemoData($http, todo) {
+    var memo_data = 'memo=' + todo.title.trim() + '&state=' +
+        (todo.completed ? 'complete' : 'incomplete');
+
+    $http.defaults.headers.put["Content-Type"] = "application/x-www-form-urlencoded";
+    $http.put('/user/1/memos/' + todo.todo_memo_id,  memo_data).
+        success(function(data, status) {
+            todo.title = todo.title.trim();
+        }).
+        error(function(data, status) {
+            console.log('edata : ' + data);
+    });
 }

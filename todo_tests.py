@@ -70,10 +70,11 @@ class TodoTestCase(unittest.TestCase):
             '/user/' + str(user_id) + '/memos/' + str(memo_id),
             follow_redirects=True)
 
-    def update_memo(self, user_id, memo_id, memo):
+    def update_memo(self, user_id, memo_id, memo, state='complete'):
         return self.app.put('/user/' + str(user_id) + '/memos/' + str(memo_id),
                             data=dict(
-                            memo=memo
+                            memo=memo,
+                            state=state
                             ), follow_redirects=True)
 
     def test_memo_operation(self):

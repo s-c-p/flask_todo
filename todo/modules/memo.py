@@ -82,6 +82,7 @@ class MemoAPI(MethodView):
 
         if todo_memo is not None:
             todo_memo.memo = request.form['memo']
+            todo_memo.state = request.form['state']
             todo_memo.save()
             return jsonify(memo=json.dumps(todo_memo.serialize))
         else:
