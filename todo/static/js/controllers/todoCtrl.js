@@ -123,8 +123,10 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
     };
 
     $scope.markAll = function (completed) {
+        console.log('markAll :' + completed)
         todos.forEach(function (todo) {
             todo.completed = completed;
+            updataMemoData($http, todo);
         });
     };
 
