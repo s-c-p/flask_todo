@@ -102,28 +102,25 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
     };
 
     $scope.removeTodo = function (todo) {
-        console.log('todo_memo_id : ' + todo.todo_memo_id)
 
-        $http.delete('/user/1/memos/' + todo.todo_memo_id).
-            success(function(data, status) {
-
-                if (data['status'] === 0) {
-                    todos.splice(todos.indexOf(todo), 1);
-                }
-            }).
-            error(function(data, status) {
-                console.log('edata : ' + data);
-        });
+        removeMemoData ($http, todos, todo);
     };
 
     $scope.clearCompletedTodos = function () {
+        console.log('clearCompletedTodos')
+
+        todos.forEach(function (todo) {
+            if (todo.completed) {
+                removeMemoData ($http, todos, todo);
+            }
+        });
+
         $scope.todos = todos = todos.filter(function (val) {
             return !val.completed;
         });
     };
 
     $scope.markAll = function (completed) {
-        console.log('markAll :' + completed)
         todos.forEach(function (todo) {
             todo.completed = completed;
             updataMemoData($http, todo);
@@ -133,6 +130,19 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
     $scope.changeTodoStatus = function (todo) {
         updataMemoData($http, todo);
     };
+}
+
+function removeMemoData ($http, todos, todo) {
+    $http.delete('/user/1/memos/' + todo.todo_memo_id).
+        success(function(data, status) {
+
+            if (data['status'] === 0) {
+                todos.splice(todos.indexOf(todo), 1);
+            }
+        }).
+        error(function(data, status) {
+            console.log('edata : ' + data);
+    });
 }
 
 function updataMemoData($http, todo) {
