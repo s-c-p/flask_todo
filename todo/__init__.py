@@ -31,9 +31,9 @@ app = create_app('config.cfg')
 @app.route('/')
 def index():
     if 'username' in session:
-        return 'You were logged in %s' % escape(session['username'])
+        return send_file('templates/index.html')
     #return make_response(open('templates/index.html').read())
-    return send_file('templates/index.html')
+    return send_file('templates/login.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
