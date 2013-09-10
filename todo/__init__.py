@@ -42,15 +42,18 @@ def login():
         user = User.query.filter_by(username=request.form['username']).first()
 
         if user is None:
+            return_code = 1
             error = 'Invalid username'
         elif request.form['password'] != user.password:
+            return_code = 2
             error = 'Invalid password'
         else:
-            session['username'] = request.form['username']
+            session['username'] = user.username
+            session['user_id'] = user.id
             session['logged_in'] = True
-            return redirect(url_for('index'))
+            return jsonify(return_code=0, user_id=user.id, username=user.username)
 
-        return error
+        return jsonify(return_code=return_code, error_dic=error)
     return '''
         <form action="" method="post">
             <p><input type=text name=username>

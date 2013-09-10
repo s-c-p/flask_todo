@@ -52,7 +52,9 @@ class TodoTestCase(unittest.TestCase):
         self.assertEqual(0, result['status'], 'register_user error')
 
         rv = self.login(self.username, self.password)
-        self.assertIn(b'You were logged in', rv.data, 'logged in error')
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(0, result['return_code'], 'logged error')
+
         #rv = self.logout()
         #self.assertIn(b'You were logged out', rv.data, 'logged out error')
 
