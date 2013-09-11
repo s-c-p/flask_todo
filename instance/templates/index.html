@@ -2,6 +2,8 @@
 <html lang="en" ng-app="todomvc" data-framework="angularjs">
     <head>
         <meta charset="utf-8">
+        <meta http-equiv="cache-control" content="no-cache">
+        <meta http-equiv="expires" content="0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>AngularJS • TodoMVC</title>
         <link rel="stylesheet" href="static/bower_components/todomvc-common/base.css">
@@ -10,6 +12,7 @@
         <script src="http://code.angularjs.org/1.2.0-rc.2/angular-animate.min.js"></script>
         <script src="static/js/app.js"></script>
         <script src="static/js/controllers/todoCtrl.js"></script>
+        <script src="static/js/controllers/loginCtrl.js"></script>
         <script src="static/js/services/todoStorage.js"></script>
         <script src="static/js/directives/todoFocus.js"></script>
         <script src="static/js/directives/todoBlur.js"></script>
@@ -17,6 +20,9 @@
         <style>[ng-cloak] { display: none; }</style>
     </head>
     <body>
+        <div ng-controller="loginCtrl">
+            Hello {{username || 'Everyone'}}!!  <a href='#' ng-click="logout()">logout</a>
+        </div>
         <section id="todoapp" ng-controller="TodoCtrl">
             <header id="header">
                 <h1>SoftStar Todos</h1>

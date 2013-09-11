@@ -28,12 +28,23 @@ def pluggable_views_setting(app):
 
 app = create_app('config.cfg')
 
+
 @app.route('/')
 def index():
+    app.logger.debug('index')
+    app.logger.debug('username' in session)
     if 'username' in session:
-        return send_file('templates/index.html')
-    #return make_response(open('templates/index.html').read())
-    return send_file('templates/login.html')
+        #return send_file('templates/index.html')
+        with app.open_instance_resource('templates/index.html') as f:
+            index_file = f.read()
+            return make_response(index_file)
+
+    with app.open_instance_resource('templates/login.html') as f:
+        login_file = f.read()
+        app.logger.debug(app.instance_path)
+        return make_response(login_file)
+    #return make_response(open('templates/login.html').read())
+    #return send_file('templates/login.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
