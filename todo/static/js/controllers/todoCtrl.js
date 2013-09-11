@@ -7,20 +7,32 @@
  * - exposes the model to the template and provides event handlers
  */
 todomvc.controller('TodoCtrl', function TodoCtrl($scope, $http, $location, todoStorage, filterFilter) {
-    getMemos($scope, $http, $location, todoStorage, filterFilter);
+    $scope.logined = false;
+    $scope.username = "";
+    $scope.password = "";
+    $scope.user_id;
+
+    setloginCtrl($scope, $http);
+
+    $scope.$watch('logined', function(){
+        if ($scope.logined) {
+            console.log('$scope.user_id : ' + $scope.user_id);
+            getMemos($scope, $http, $location, todoStorage, filterFilter);
+        }
+    });
 });
 
 function getMemos($scope, $http, $location, todoStorage, filterFilter) {
-    $http.get('/user/1/memos/').
+    $http.get('/user/' + $scope.user_id + '/memos/').
         success(function(data, status) {
-            set_controller($scope, $http, $location, todoStorage, filterFilter, data);
+            set_todo_controller($scope, $http, $location, todoStorage, filterFilter, data);
         }).
         error(function(data, status) {
             console.log('edata : ' + data);
     });
 }
 
-function set_controller($scope, $http, $location, todoStorage, filterFilter, memos) {
+function set_todo_controller($scope, $http, $location, todoStorage, filterFilter, memos) {
     var todos = $scope.todos = [];
 
     for (var i = memos.length - 1; i >= 0; i--) {
@@ -61,7 +73,7 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
         var memo_data = 'memo=' + newTodo;
 
         $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-        $http.post('/user/1/memos/',  memo_data).
+        $http.post('/user/' + $scope.user_id + '/memos/',  memo_data).
             success(function(data, status) {
                 if (data['todo_memo_id'] !== 0) {
                     todos.push({
@@ -92,7 +104,7 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
             $scope.removeTodo(todo);
 
         } else {
-            updataMemoData($http, todo);
+            updataMemoData($scope, $http, todo);
         }
     };
 
@@ -103,7 +115,7 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
 
     $scope.removeTodo = function (todo) {
 
-        removeMemoData ($http, todos, todo);
+        removeMemoData ($scope, $http, todos, todo);
     };
 
     $scope.clearCompletedTodos = function () {
@@ -111,7 +123,7 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
 
         todos.forEach(function (todo) {
             if (todo.completed) {
-                removeMemoData ($http, todos, todo);
+                removeMemoData ($scope, $http, todos, todo);
             }
         });
 
@@ -123,17 +135,17 @@ function set_controller($scope, $http, $location, todoStorage, filterFilter, mem
     $scope.markAll = function (completed) {
         todos.forEach(function (todo) {
             todo.completed = completed;
-            updataMemoData($http, todo);
+            updataMemoData($scope, $http, todo);
         });
     };
 
     $scope.changeTodoStatus = function (todo) {
-        updataMemoData($http, todo);
+        updataMemoData($scope, $http, todo);
     };
 }
 
-function removeMemoData ($http, todos, todo) {
-    $http.delete('/user/1/memos/' + todo.todo_memo_id).
+function removeMemoData ($scope, $http, todos, todo) {
+    $http.delete('/user/' + $scope.user_id + '/memos/' + todo.todo_memo_id).
         success(function(data, status) {
 
             if (data['status'] === 0) {
@@ -145,16 +157,54 @@ function removeMemoData ($http, todos, todo) {
     });
 }
 
-function updataMemoData($http, todo) {
+function updataMemoData($scope, $http, todo) {
     var memo_data = 'memo=' + todo.title.trim() + '&state=' +
         (todo.completed ? 'complete' : 'incomplete');
 
     $http.defaults.headers.put["Content-Type"] = "application/x-www-form-urlencoded";
-    $http.put('/user/1/memos/' + todo.todo_memo_id,  memo_data).
+    $http.put('/user/' + $scope.user_id + '/memos/' + todo.todo_memo_id,  memo_data).
         success(function(data, status) {
             todo.title = todo.title.trim();
         }).
         error(function(data, status) {
             console.log('edata : ' + data);
     });
+}
+
+function setloginCtrl($scope, $http) {
+
+    $scope.login = function() {
+        if(this.username) {
+            $scope.username = this.username;
+            var login_data = 'username=' + this.username + '&password=' + this.password;
+
+            $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+            $http.post('/login',  login_data).
+                success(function(data, status) {
+
+                    if (data['return_code'] === 0) {
+                        console.log(data);
+                        $scope.user_id = data['user_id'];
+                        $scope.logined = true;
+                    } else {
+                        console.log(data);
+                    }
+                }).
+                error(function(data, status) {
+                    console.log('edata : ' + data);
+            });
+        }
+    };
+
+    $scope.logout = function() {
+        $http.get('/logout').
+            success(function(data, status) {
+                $scope.logined = false;
+                $scope.username = "";
+                $scope.password = "";
+            }).
+            error(function(data, status) {
+                console.log('edata : ' + data);
+        });
+    };
 }

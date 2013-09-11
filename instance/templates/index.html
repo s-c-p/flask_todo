@@ -12,18 +12,17 @@
         <script src="http://code.angularjs.org/1.2.0-rc.2/angular-animate.min.js"></script>
         <script src="static/js/app.js"></script>
         <script src="static/js/controllers/todoCtrl.js"></script>
-        <script src="static/js/controllers/loginCtrl.js"></script>
         <script src="static/js/services/todoStorage.js"></script>
         <script src="static/js/directives/todoFocus.js"></script>
         <script src="static/js/directives/todoBlur.js"></script>
         <script src="static/js/directives/todoEscape.js"></script>
         <style>[ng-cloak] { display: none; }</style>
     </head>
-    <body>
-        <div ng-controller="loginCtrl">
-            Hello {{username || 'Everyone'}}!!  <a href='#' ng-click="logout()">logout</a>
-        </div>
-        <section id="todoapp" ng-controller="TodoCtrl">
+    <body ng-controller="TodoCtrl">
+        <div class="check-element animate-show" ng-show="logined">
+        Hello {{username || 'Everyone'}}!!  <a href='#' ng-click="logout()">logout</a>
+
+        <section id="todoapp">
             <header id="header">
                 <h1>SoftStar Todos</h1>
                 <form id="todo-form" ng-submit="addTodo()">
@@ -64,6 +63,25 @@
                 <button id="clear-completed" ng-click="clearCompletedTodos()" ng-show="completedCount">Clear completed ({{completedCount}})</button>
             </footer>
         </section>
+        </div>
+
+        <div class="check-element animate-show" ng-hide="logined">
+        Hello Everyone!!
+        <section id="todoapp">
+            <header id="header">
+                <h1>SoftStar Todos</h1>
+            </header>
+
+            <div align="center">
+            Login Page:
+            <form ng-submit="login()">
+                <input type="text" ng-model="username" name="username" placeholder="Enter a name here" /><br/>
+                <input type="text" ng-model="password" name="password" placeholder="Enter a password here" /><br/>
+                <input type="submit" id="submit" value="login" />
+            </form>
+            </div>
+        </section>
+        </div>
 
         <footer id="info">
 

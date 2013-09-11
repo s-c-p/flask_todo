@@ -55,8 +55,9 @@ class TodoTestCase(unittest.TestCase):
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(0, result['return_code'], 'logged error')
 
-        #rv = self.logout()
-        #self.assertIn(b'You were logged out', rv.data, 'logged out error')
+        rv = self.logout()
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(0, result['return_code'], 'logout error')
 
     def add_memo(self, user_id, memo):
         return self.app.post('/user/' + str(user_id) + '/memos/', data=dict(
