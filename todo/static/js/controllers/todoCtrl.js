@@ -76,7 +76,7 @@ function set_todo_controller($scope, $http, $location, todoStorage, filterFilter
         $http.post('/user/' + $scope.user_id + '/memos/',  memo_data).
             success(function(data, status) {
                 if (data['todo_memo_id'] !== 0) {
-                    todos.push({
+                    todos.splice(0, 0, {
                         todo_memo_id : data['todo_memo_id'],
                         title: newTodo,
                         completed: false
