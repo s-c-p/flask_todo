@@ -6,7 +6,7 @@
 
 ### 1. Requirement
 
-需安裝 Python3.3 、 Flask 、 Flask-SQLAlchemy 、 MySQL
+需安裝 Python3.3 、 Flask 、 Flask-SQLAlchemy 、 pymysql3
 
 ### 2. Config Setting
 
