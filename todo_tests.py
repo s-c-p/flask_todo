@@ -26,25 +26,25 @@ class TodoTestCase(unittest.TestCase):
             db.drop_all()
 
     def register_user(self, username, password):
-        return self.app.post('/users/', data=dict(
+        return self.app.post('/todo/users/', data=dict(
             username=username,
             password=password
         ), follow_redirects=True)
 
     def get_user(self, username):
-        return self.app.get('/users/' + username, follow_redirects=True)
+        return self.app.get('/todo/users/' + username, follow_redirects=True)
 
     def delete_user(self, username):
-        return self.app.delete('/users/' + username, follow_redirects=True)
+        return self.app.delete('/todo/users/' + username, follow_redirects=True)
 
     def login(self, username, password):
-        return self.app.post('/login', data=dict(
+        return self.app.post('/todo/login', data=dict(
             username=username,
             password=password
         ), follow_redirects=True)
 
     def logout(self):
-        return self.app.get('/logout', follow_redirects=True)
+        return self.app.get('/todo/logout', follow_redirects=True)
 
     def test_login_logout(self):
         rv = self.register_user(self.username, self.password)
@@ -60,21 +60,21 @@ class TodoTestCase(unittest.TestCase):
         self.assertEqual(0, result['return_code'], 'logout error')
 
     def add_memo(self, user_id, memo):
-        return self.app.post('/user/' + str(user_id) + '/memos/', data=dict(
+        return self.app.post('/todo/user/' + str(user_id) + '/memos/', data=dict(
             memo=memo
         ), follow_redirects=False)
 
     def get_memos(self, user_id):
-        return self.app.get('/user/' + str(user_id) + '/memos/',
+        return self.app.get('/todo/user/' + str(user_id) + '/memos/',
                             follow_redirects=True)
 
     def delete_memo(self, user_id, memo_id):
         return self.app.delete(
-            '/user/' + str(user_id) + '/memos/' + str(memo_id),
+            '/todo/user/' + str(user_id) + '/memos/' + str(memo_id),
             follow_redirects=True)
 
     def update_memo(self, user_id, memo_id, memo, state='complete'):
-        return self.app.put('/user/' + str(user_id) + '/memos/' + str(memo_id),
+        return self.app.put('/todo/user/' + str(user_id) + '/memos/' + str(memo_id),
                             data=dict(
                             memo=memo,
                             state=state

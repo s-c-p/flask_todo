@@ -19,23 +19,23 @@ def init_db(app):
 
 def pluggable_views_setting(app):
     view_func = MemoAPI.as_view('memo_api')
-    app.add_url_rule('/user/<int:user_id>/memos/', defaults={'memo_id': None},
+    app.add_url_rule('/todo/user/<int:user_id>/memos/', defaults={'memo_id': None},
                      view_func=view_func, methods=['GET',])
-    app.add_url_rule('/user/<int:user_id>/memos/', view_func=view_func,
+    app.add_url_rule('/todo/user/<int:user_id>/memos/', view_func=view_func,
                      methods=['POST',])
-    app.add_url_rule('/user/<int:user_id>/memos/<int:memo_id>', view_func=view_func,
+    app.add_url_rule('/todo/user/<int:user_id>/memos/<int:memo_id>', view_func=view_func,
                      methods=['GET', 'PUT', 'DELETE'])
 
 app = create_app('config.cfg')
 
 
-@app.route('/')
+@app.route('/todo/')
 def index():
     return app.send_static_file('index.html')
 
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/todo/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
@@ -62,15 +62,15 @@ def login():
     '''
 
 
-@app.route('/logout')
+@app.route('/todo/logout')
 def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return jsonify(return_code=0)
 
 
-@app.route('/users/', methods=['GET', 'POST'])
-@app.route('/users/<username>', methods=['GET', 'POST', 'DELETE'])
+@app.route('/todo/users/', methods=['GET', 'POST'])
+@app.route('/todo/users/<username>', methods=['GET', 'POST', 'DELETE'])
 def users(username=None):
 
     if request.method == 'GET':
