@@ -31,12 +31,8 @@ app = create_app('config.cfg')
 
 @app.route('/')
 def index():
+    return app.send_static_file('index.html')
 
-    with app.open_instance_resource('templates/index.html') as f:
-        login_file = f.read()
-        app.logger.debug(app.instance_path)
-        return make_response(login_file)
-    #return send_file('templates/login.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
