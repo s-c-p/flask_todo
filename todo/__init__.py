@@ -1,6 +1,7 @@
-from flask import session, redirect, url_for, escape, request, json, jsonify, make_response, send_file
+import datetime
+from flask import session, request, json, jsonify, make_response
 from todo.sesto import Sesto
-from todo.modules import db, MemoAPI, User
+from todo.modules import db, TodoMemo, User
 
 
 def create_app(config_filename):
@@ -8,8 +9,8 @@ def create_app(config_filename):
     sesto_app.config.from_pyfile(config_filename, silent=True)
     sesto_app.init_logger()
     init_db(sesto_app)
-    pluggable_views_setting(sesto_app)
     return sesto_app
+
 
 def init_db(app):
     db.init_app(app)
@@ -17,14 +18,6 @@ def init_db(app):
     with app.app_context():
         db.create_all()
 
-def pluggable_views_setting(app):
-    view_func = MemoAPI.as_view('memo_api')
-    app.add_url_rule('/todo/user/<int:user_id>/memos/', defaults={'memo_id': None},
-                     view_func=view_func, methods=['GET',])
-    app.add_url_rule('/todo/user/<int:user_id>/memos/', view_func=view_func,
-                     methods=['POST',])
-    app.add_url_rule('/todo/user/<int:user_id>/memos/<int:memo_id>', view_func=view_func,
-                     methods=['GET', 'PUT', 'DELETE'])
 
 app = create_app('config.cfg')
 
@@ -32,7 +25,6 @@ app = create_app('config.cfg')
 @app.route('/todo/')
 def index():
     return app.send_static_file('index.html')
-
 
 
 @app.route('/todo/login', methods=['GET', 'POST'])
@@ -70,14 +62,21 @@ def logout():
 
 
 @app.route('/todo/users/', methods=['GET', 'POST'])
-@app.route('/todo/users/<username>', methods=['GET', 'POST', 'DELETE'])
+@app.route('/todo/users/<username>', methods=['GET', 'DELETE'])
 def users(username=None):
+    """
+    The users fuction provide three user's action
+    user action :
+        1.get user data,
+        2.regist user,
+        3.delete user
+    """
 
     if request.method == 'GET':
 
         if username is not None:
             user = User.query.filter_by(username=username).first()
-            return jsonify(user=json.dumps(user.serialize))
+            return jsonify(user=json.dumps(user, default=to_json))
 
         else:
             return jsonify(user=None)
@@ -109,3 +108,87 @@ def users(username=None):
         else:
             return jsonify(status=-1)
 
+
+@app.route('/todo/user/<user_id>/memos/', methods=['GET', 'POST'])
+@app.route('/todo/user/<user_id>/memos/<memo_id>', methods=['GET', 'PUT', 'DELETE'])
+def memos(user_id=None, memo_id=None):
+    """
+    The memos fuction provide four memos's action
+    memos action :  1.get memos data,
+                    2.add_memo,
+                    3.delete_memo,
+                    4.update_memo
+    """
+
+    def get_memos():
+        if memo_id is None:
+            memos = TodoMemo.query.filter_by(user_id=user_id).all()
+
+            response = make_response(json.dumps(memos, default=to_json))
+            response.headers['Content-Type'] = 'application/json'
+            return response
+
+        else:
+            return 'a single memo of user'
+
+    def add_memo():
+        todo_memo = TodoMemo(user_id, request.form['memo'])
+        todo_memo.save()
+        return jsonify(todo_memo_id=todo_memo.id)
+
+    def delete_memo():
+        todo_memo = TodoMemo.query.filter_by(id=memo_id).first()
+
+        if todo_memo is not None:
+            todo_memo.delete()
+            return jsonify(status=0)
+        else:
+            return jsonify(status=-1)
+
+    def update_memo():
+        todo_memo = TodoMemo.query.filter_by(id=memo_id).first()
+
+        if todo_memo is not None:
+            todo_memo.memo = request.form['memo']
+            todo_memo.state = request.form['state']
+            todo_memo.save()
+            return jsonify(memo=json.dumps(todo_memo, default=to_json))
+        else:
+            return jsonify(memo=None)
+
+    if request.method == 'GET':
+        return get_memos()
+
+    elif request.method == 'POST':
+        return add_memo()
+
+    elif request.method == 'DELETE':
+        return delete_memo()
+
+    elif request.method == 'PUT':
+        return update_memo()
+
+
+def to_json(python_object):
+
+    if isinstance(python_object, TodoMemo):
+        return {
+            'id': python_object.id,
+            'user_id': python_object.user_id,
+            'memo': python_object.memo,
+            'state': python_object.state,
+            'create_date': python_object.create_date
+        }
+
+    if isinstance(python_object, User):
+        return {
+            'id': python_object.id,
+            'username': python_object.username,
+            'password': python_object.password
+        }
+
+    if isinstance(python_object, datetime.date):
+        if python_object is None:
+            return None
+        return "{0} {1}".format(python_object.strftime("%Y-%m-%d"),
+                                python_object.strftime("%H:%M:%S"))

@@ -13,15 +13,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-    @property
-    def serialize(self):
-        """Return object data in easily serializeable format"""
-        return {
-            'id': self.id,
-            'username': self.username,
-            'password': self.password
-    }
-
     def save(self):
         db.session.add(self)
         db.session.commit()
