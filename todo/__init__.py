@@ -1,6 +1,6 @@
 import datetime
 from flask import Flask, session, request, json, jsonify, make_response
-from todo.modules import db, TodoMemo, User
+from todo.model import db, TodoMemo, User
 from todo import log_config
 
 
