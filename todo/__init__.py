@@ -1,15 +1,16 @@
 import datetime
-from flask import session, request, json, jsonify, make_response
-from todo.sesto import Sesto
+from flask import Flask, session, request, json, jsonify, make_response
 from todo.modules import db, TodoMemo, User
+from todo import log_config
 
 
 def create_app(config_filename):
-    sesto_app = Sesto(__name__)
-    sesto_app.config.from_pyfile(config_filename, silent=True)
-    sesto_app.init_logger()
-    init_db(sesto_app)
-    return sesto_app
+    app = Flask(__name__)
+    app.config.from_pyfile(config_filename, silent=True)
+    app.logger.addHandler(log_config.create_log_file_handler(
+                            app.config.get('LOG_PATH')))
+    init_db(app)
+    return app
 
 
 def init_db(app):
