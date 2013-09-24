@@ -1,6 +1,6 @@
 import datetime
 from flask import request, session, jsonify, json, make_response
-from todo.model import TodoMemo, User
+from todo.models import TodoMemo, User
 
 def init_routes(app):
     @app.route('/todo/')

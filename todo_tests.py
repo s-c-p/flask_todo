@@ -1,7 +1,7 @@
 import unittest
 from flask import json
 import todo
-from todo.model import db
+from todo.models import db
 
 
 class TodoTestCase(unittest.TestCase):

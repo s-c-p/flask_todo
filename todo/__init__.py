@@ -1,6 +1,6 @@
 from flask import Flask
-from todo.model import db
 from todo import log_config
+from todo.models import init_db
 from todo.routes import init_routes
 
 
@@ -13,10 +13,6 @@ def create_app(config_filename):
     init_routes(app)
     return app
 
-def init_db(app):
-    db.init_app(app)
 
-    with app.app_context():
-        db.create_all()
 
 app = create_app('config.cfg')
