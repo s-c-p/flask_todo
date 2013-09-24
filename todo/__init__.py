@@ -1,7 +1,6 @@
 from flask import Flask
+from flask.ext.sqlalchemy import SQLAlchemy
 from todo import log_config
-from todo.models import init_db
-from todo.routes import init_routes
 
 
 def create_app(config_filename):
@@ -10,9 +9,16 @@ def create_app(config_filename):
     app.logger.addHandler(log_config.create_log_file_handler(
                             app.config.get('LOG_PATH')))
     init_db(app)
-    init_routes(app)
     return app
 
+db = SQLAlchemy()
 
+def init_db(app):
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
 
 app = create_app('config.cfg')
+
+import todo.routes
