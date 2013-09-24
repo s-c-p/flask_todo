@@ -6,34 +6,28 @@ from todo.models import TodoMemo, User
 
 @app.route('/todo/')
 def index():
+
     return app.send_static_file('index.html')
 
 
-@app.route('/todo/login', methods=['GET', 'POST'])
+@app.route('/todo/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
+    user = User.query.filter_by(username=request.form['username']).first()
 
-        if user is None:
-            return_code = 1
-            error = 'Invalid username'
-        elif request.form['password'] != user.password:
-            return_code = 2
-            error = 'Invalid password'
-        else:
-            session['username'] = user.username
-            session['user_id'] = user.id
-            session['logged_in'] = True
-            return jsonify(return_code=0, user_id=user.id, username=user.username)
+    if user is None:
+        return_code = 1
+        error = 'Invalid username'
+    elif request.form['password'] != user.password:
+        return_code = 2
+        error = 'Invalid password'
+    else:
+        session['username'] = user.username
+        session['user_id'] = user.id
+        session['logged_in'] = True
+        return jsonify(return_code=0, user_id=user.id, username=user.username)
 
-        return jsonify(return_code=return_code, error_dic=error)
-    return '''
-        <form action="" method="post">
-            <p><input type=text name=username>
-            <p><input type=text name=password>
-            <p><input type=submit value=Login>
-        </form>
-    '''
+    return jsonify(return_code=return_code, error_dic=error)
+
 
 
 @app.route('/todo/logout')
@@ -152,7 +146,6 @@ def memos(user_id=None, memo_id=None):
 
 
 def to_json(python_object):
-
     if isinstance(python_object, TodoMemo):
         return {
             'id': python_object.id,

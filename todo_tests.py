@@ -47,6 +47,12 @@ class TodoTestCase(unittest.TestCase):
         return self.app.get('/todo/logout', follow_redirects=True)
 
     def test_login_logout(self):
+        """
+        test user action:
+            1.register
+            2.login
+            3.logout
+        """
         rv = self.register_user(self.username, self.password)
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(0, result['status'], 'register_user error')
@@ -81,6 +87,13 @@ class TodoTestCase(unittest.TestCase):
                             ), follow_redirects=True)
 
     def test_memo_operation(self):
+        """
+        test memo operation:
+            1.add_memo
+            2.get_memos
+            3.update_memo
+            4.delete_memo
+        """
         rv = self.get_user(self.username)
         result = json.loads(str(rv.data, 'utf-8'))
         user = json.loads(result['user'])

@@ -7,7 +7,6 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 
 def create_app(config_filename):
-
     app = Flask(__name__)
     app.config.from_pyfile(config_filename, silent=True)
     app.logger.addHandler(create_log_file_handler(app.config.get('LOG_PATH')))
@@ -17,14 +16,12 @@ def create_app(config_filename):
 db = SQLAlchemy()
 
 def init_db(app):
-
     db.init_app(app)
 
     with app.app_context():
         db.create_all()
 
 def create_log_file_handler(log_path):
-
     last_slash_index = str.rfind(log_path,'/')
     log_folder = log_path[: last_slash_index]
     log_filename = log_path[last_slash_index + 1:]
