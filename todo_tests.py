@@ -17,8 +17,7 @@ class TodoTestCase(unittest.TestCase):
         pass
 
     def setUpClass():
-        todo.app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/to_do2'
-        init_db()
+        init_db('mysql+pymysql://root:123456@localhost/to_do2')
 
     def tearDownClass():
         drop_all_table()

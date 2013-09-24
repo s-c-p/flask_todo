@@ -10,7 +10,7 @@ def create_app(config_filename):
     app = Flask(__name__)
     app.config.from_pyfile(config_filename, silent=True)
     app.logger.addHandler(create_log_file_handler(app.config.get('LOG_PATH')))
-    init_db()
+    init_db(app.config['SQLALCHEMY_DATABASE_URI'])
     return app
 
 def create_log_file_handler(log_path):
@@ -38,6 +38,7 @@ app = create_app('config.cfg')
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    db_session.remove()
+    if db_session:
+        db_session.remove()
 
 import todo.routes
