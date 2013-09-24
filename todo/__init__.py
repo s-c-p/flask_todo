@@ -3,23 +3,15 @@ import datetime
 import logging
 from logging import FileHandler, Formatter
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
+from todo.database import init_db, db_session
 
 
 def create_app(config_filename):
     app = Flask(__name__)
     app.config.from_pyfile(config_filename, silent=True)
     app.logger.addHandler(create_log_file_handler(app.config.get('LOG_PATH')))
-    init_db(app)
+    init_db()
     return app
-
-db = SQLAlchemy()
-
-def init_db(app):
-    db.init_app(app)
-
-    with app.app_context():
-        db.create_all()
 
 def create_log_file_handler(log_path):
     last_slash_index = str.rfind(log_path,'/')
@@ -43,5 +35,9 @@ def create_log_file_handler(log_path):
     return file_handler
 
 app = create_app('config.cfg')
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
 
 import todo.routes

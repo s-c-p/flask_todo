@@ -51,7 +51,7 @@ def users(username=None):
     if request.method == 'GET':
 
         if username is not None:
-            user = User.query.filter_by(username=username).first()
+            user = User.query.filter(User.username==username).first()
             return jsonify(user=json.dumps(user, default=to_json))
 
         else:
@@ -62,7 +62,7 @@ def users(username=None):
         if request.form['username'] is None or request.form['password'] is None:
             return jsonify(status=-1)
 
-        user = User.query.filter_by(username=request.form['username']).first()
+        user = User.query.filter(User.username==request.form['username']).first()
 
         if user is not None:
             return jsonify(status=-1)
@@ -74,7 +74,7 @@ def users(username=None):
     elif request.method == 'DELETE':
 
         if username is not None:
-            user = User.query.filter_by(username=username).first()
+            user = User.query.filter(User.username==username).first()
 
             if user is not None:
                 user.delete()
@@ -98,7 +98,7 @@ def memos(user_id=None, memo_id=None):
 
     def get_memos():
         if memo_id is None:
-            memos = TodoMemo.query.filter_by(user_id=user_id).all()
+            memos = TodoMemo.query.filter(TodoMemo.user_id==user_id).all()
 
             response = make_response(json.dumps(memos, default=to_json))
             response.headers['Content-Type'] = 'application/json'
@@ -113,7 +113,7 @@ def memos(user_id=None, memo_id=None):
         return jsonify(todo_memo_id=todo_memo.id)
 
     def delete_memo():
-        todo_memo = TodoMemo.query.filter_by(id=memo_id).first()
+        todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
 
         if todo_memo is not None:
             todo_memo.delete()
@@ -122,7 +122,7 @@ def memos(user_id=None, memo_id=None):
             return jsonify(status=-1)
 
     def update_memo():
-        todo_memo = TodoMemo.query.filter_by(id=memo_id).first()
+        todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
 
         if todo_memo is not None:
             todo_memo.memo = request.form['memo']

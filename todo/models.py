@@ -1,13 +1,16 @@
 import datetime
-from todo import db
+from sqlalchemy import Column, Integer, String, DateTime
+from todo.database import Base, db_session
 
 
-class TodoMemo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
-    memo = db.Column(db.String(50))
-    state = db.Column(db.String(50))
-    create_date = db.Column(db.DateTime)
+class TodoMemo(Base):
+    __tablename__ = 'todo_memo'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, unique=True)
+    memo = Column(String(50))
+    state = Column(String(50))
+    create_date = Column(DateTime)
+
 
     def __init__(self, user_id, memo, state='incomplete',
                  create_date=datetime.datetime.today()):
@@ -20,18 +23,20 @@ class TodoMemo(db.Model):
         return '<TodoMemo %r>' % self.memo
 
     def save(self):
-        db.session.add(self)
-        db.session.commit()
+        db_session.add(self)
+        db_session.commit()
 
     def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+        db_session.delete(self)
+        db_session.commit()
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(50))
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(50), unique=True)
+    password = Column(String(50))
+
 
     def __init__(self, username, password):
         self.username = username
@@ -41,9 +46,9 @@ class User(db.Model):
         return '<User %r>' % self.username
 
     def save(self):
-        db.session.add(self)
-        db.session.commit()
+        db_session.add(self)
+        db_session.commit()
 
     def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+        db_session.delete(self)
+        db_session.commit()
