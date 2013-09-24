@@ -6,36 +6,32 @@ from todo.models import TodoMemo, User
 
 @app.route('/todo/')
 def index():
-
     return app.send_static_file('index.html')
-
 
 @app.route('/todo/login', methods=['POST'])
 def login():
     user = User.query.filter_by(username=request.form['username']).first()
 
-    if user is None:
+    if user:
+        if request.form['password'] != user.password:
+            return_code = 2
+            error = 'Invalid password'
+        else:
+            session['username'] = user.username
+            session['user_id'] = user.id
+            session['logged_in'] = True
+            return jsonify(return_code=0, user_id=user.id, username=user.username)
+    else:
         return_code = 1
         error = 'Invalid username'
-    elif request.form['password'] != user.password:
-        return_code = 2
-        error = 'Invalid password'
-    else:
-        session['username'] = user.username
-        session['user_id'] = user.id
-        session['logged_in'] = True
-        return jsonify(return_code=0, user_id=user.id, username=user.username)
 
     return jsonify(return_code=return_code, error_dic=error)
-
-
 
 @app.route('/todo/logout')
 def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return jsonify(return_code=0)
-
 
 @app.route('/todo/users/', methods=['GET', 'POST'])
 @app.route('/todo/users/<username>', methods=['GET', 'DELETE'])
@@ -50,7 +46,7 @@ def users(username=None):
 
     if request.method == 'GET':
 
-        if username is not None:
+        if username:
             user = User.query.filter(User.username==username).first()
             return jsonify(user=json.dumps(user, default=to_json))
 
@@ -64,7 +60,7 @@ def users(username=None):
 
         user = User.query.filter(User.username==request.form['username']).first()
 
-        if user is not None:
+        if user:
             return jsonify(status=-1)
 
         user = User(request.form['username'], request.form['password'])
@@ -73,17 +69,16 @@ def users(username=None):
 
     elif request.method == 'DELETE':
 
-        if username is not None:
+        if username:
             user = User.query.filter(User.username==username).first()
 
-            if user is not None:
+            if user:
                 user.delete()
                 return jsonify(status=0)
             else:
                return jsonify(status=-1)
         else:
             return jsonify(status=-1)
-
 
 @app.route('/todo/user/<user_id>/memos/', methods=['GET', 'POST'])
 @app.route('/todo/user/<user_id>/memos/<memo_id>', methods=['GET', 'PUT', 'DELETE'])
@@ -97,15 +92,14 @@ def memos(user_id=None, memo_id=None):
     """
 
     def get_memos():
-        if memo_id is None:
-            memos = TodoMemo.query.filter(TodoMemo.user_id==user_id).all()
+        if memo_id:
+            return 'a single memo of user'
 
+        else:
+            memos = TodoMemo.query.filter(TodoMemo.user_id==user_id).all()
             response = make_response(json.dumps(memos, default=to_json))
             response.headers['Content-Type'] = 'application/json'
             return response
-
-        else:
-            return 'a single memo of user'
 
     def add_memo():
         todo_memo = TodoMemo(user_id, request.form['memo'])
@@ -115,7 +109,7 @@ def memos(user_id=None, memo_id=None):
     def delete_memo():
         todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
 
-        if todo_memo is not None:
+        if todo_memo:
             todo_memo.delete()
             return jsonify(status=0)
         else:
@@ -124,7 +118,7 @@ def memos(user_id=None, memo_id=None):
     def update_memo():
         todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
 
-        if todo_memo is not None:
+        if todo_memo:
             todo_memo.memo = request.form['memo']
             todo_memo.state = request.form['state']
             todo_memo.save()
@@ -144,7 +138,6 @@ def memos(user_id=None, memo_id=None):
     elif request.method == 'PUT':
         return update_memo()
 
-
 def to_json(python_object):
     if isinstance(python_object, TodoMemo):
         return {
@@ -163,7 +156,9 @@ def to_json(python_object):
         }
 
     if isinstance(python_object, datetime.date):
-        if python_object is None:
+        if python_object:
+            return "{0} {1}".format(python_object.strftime("%Y-%m-%d"),
+                        python_object.strftime("%H:%M:%S"))
+        else:
             return None
-        return "{0} {1}".format(python_object.strftime("%Y-%m-%d"),
-                                python_object.strftime("%H:%M:%S"))
+
