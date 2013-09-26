@@ -6,8 +6,6 @@
 
 ![image](http://rtd.softstar.com.tw/softstar-web-technique/flask-todo/raw/master/doc/images/todo_login.jpg)
 
-![image](http://rtd.softstar.com.tw/softstar-web-technique/flask-todo/raw/master/doc/images/todo_list.jpg)
-
 [supervisor status](http://172.18.101.16:9001/)(測試帳號 : user 測試密碼 : 123)
 
 ## Use Steps
@@ -118,5 +116,3 @@ Nginx config
 Nginx restart
 
     sudo service nginx restart
-
-
