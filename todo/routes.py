@@ -2,6 +2,7 @@ import datetime
 from flask import request, session, jsonify, json, make_response
 from todo import app
 from todo.models import TodoMemo, User
+from todo import memos_center
 
 
 @app.route('/todo/')
@@ -96,7 +97,7 @@ def memos(user_id=None, memo_id=None):
             return 'a single memo of user'
 
         else:
-            memos = TodoMemo.query.filter(TodoMemo.user_id==user_id).all()
+            memos = memos_center.get_memos(user_id)
             response = make_response(json.dumps(memos, default=to_json))
             response.headers['Content-Type'] = 'application/json'
             return response
