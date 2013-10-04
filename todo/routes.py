@@ -115,12 +115,11 @@ def memos(user_id=None, memo_id=None):
             return jsonify(status=-1)
 
     def update_memo():
-        todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
+        todo_memo = memos_center.update_memo(user_id, memo_id,
+                                             request.form['memo'],
+                                             request.form['state'])
 
         if todo_memo:
-            todo_memo.memo = request.form['memo']
-            todo_memo.state = request.form['state']
-            todo_memo.save()
             return jsonify(memo=json.dumps(todo_memo, default=to_json))
         else:
             return jsonify(memo=None)
