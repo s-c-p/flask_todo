@@ -19,7 +19,7 @@ class CustomRedisCache(RedisCache):
         self.load_object = super().load_object
 
     def hget(self, key, field):
-        return super().load_object(self._client.hget(self.key_prefix + key, field))
+        return self.load_object(self._client.hget(self.key_prefix + key, field))
 
     def hset(self, key, field, value):
         dump = super().dump_object(value)

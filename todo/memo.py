@@ -34,8 +34,13 @@ def get_memos(user_id):
     return todo_memos
 
 
-def add_memo():
-    pass
+def add_memo(user_id, memo_text):
+    todo_memo = TodoMemo(user_id, memo_text)
+    todo_memo.save()
+
+    cache_key_name = 'user:{0}:memo'.format(user_id)
+    cache.hset(cache_key_name, todo_memo.id, todo_memo)
+    return todo_memo
 
 
 def delete_memo(user_id, memo_id):
