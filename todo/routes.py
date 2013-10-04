@@ -108,10 +108,8 @@ def memos(user_id=None, memo_id=None):
         return jsonify(todo_memo_id=todo_memo.id)
 
     def delete_memo():
-        todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
 
-        if todo_memo:
-            todo_memo.delete()
+        if memos_center.delete_memo(user_id, memo_id):
             return jsonify(status=0)
         else:
             return jsonify(status=-1)
