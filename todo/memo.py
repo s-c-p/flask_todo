@@ -1,4 +1,4 @@
-from todo.flask_redis_cache import CustomRedisCache
+from todo.flask_redis import CustomRedisCache
 from todo.models import TodoMemo
 
 
@@ -65,6 +65,7 @@ def delete_memo(user_id, memo_id):
 
     return True
 
+
 def update_memo(user_id, memo_id, memo_text, state):
     """
         First, update memo into mariaDB, and then update memo into cache
@@ -73,7 +74,7 @@ def update_memo(user_id, memo_id, memo_text, state):
         None : no memo data
         TodoMemo : new todo_memo
     """
-    todo_memo = TodoMemo.query.filter(TodoMemo.id==memo_id).first()
+    todo_memo = TodoMemo.query.filter(TodoMemo.id == memo_id).first()
 
     if todo_memo is None:
         return None
@@ -82,7 +83,7 @@ def update_memo(user_id, memo_id, memo_text, state):
     todo_memo.state = state
     todo_memo.save()
 
-    #update memo into redis cache
+    # update memo into redis cache
     cache_key_name = 'user:{0}:memo'.format(user_id)
     cache.hset(cache_key_name, todo_memo.id, todo_memo)
 
