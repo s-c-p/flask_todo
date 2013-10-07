@@ -1,14 +1,13 @@
 import unittest
 from flask import json
 import todo
-from todo.database import init_db, drop_all_table
+from todo.database import init_db, drop_all_table, db_session
+from todo.routes import ResultType
 
 
 class TodoTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.username = 'admin'
-        self.password = '111111'
         self.new_memo = 'new_memo'
         todo.app.config['TESTING'] = True
         self.app = todo.app.test_client()
@@ -17,10 +16,16 @@ class TodoTestCase(unittest.TestCase):
         pass
 
     def setUpClass():
-        init_db('mysql+pymysql://root:123456@localhost/to_do2')
+        # init_db('mysql+pymysql://root:123456@localhost/to_do2')
+        pass
 
     def tearDownClass():
+
+        if db_session:
+            db_session.remove()
+
         drop_all_table()
+        pass
 
     def register_user(self, username, password):
         return self.app.post('/todo/users/', data=dict(
@@ -43,7 +48,7 @@ class TodoTestCase(unittest.TestCase):
     def logout(self):
         return self.app.get('/todo/logout', follow_redirects=True)
 
-    def test_login_logout(self):
+    def _test_login_logout(self):
         """
         test user action:
             1.register
@@ -55,6 +60,7 @@ class TodoTestCase(unittest.TestCase):
         self.assertEqual(0, result['status'], 'register_user error')
 
         rv = self.login(self.username, self.password)
+        todo.app.logger.debug(json.loads(str(rv.data, 'utf-8')))
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(0, result['return_code'], 'logged error')
 
@@ -77,13 +83,14 @@ class TodoTestCase(unittest.TestCase):
             follow_redirects=True)
 
     def update_memo(self, user_id, memo_id, memo, state='complete'):
-        return self.app.put('/todo/user/' + str(user_id) + '/memos/' + str(memo_id),
-                            data=dict(
-                            memo=memo,
-                            state=state
-                            ), follow_redirects=True)
+        return self.app.put(
+            '/todo/user/' + str(user_id) + '/memos/' + str(memo_id),
+            data=dict(
+            memo=memo,
+            state=state
+            ), follow_redirects=True)
 
-    def test_memo_operation(self):
+    def _test_memo_operation(self):
         """
         test memo operation:
             1.add_memo
@@ -92,6 +99,7 @@ class TodoTestCase(unittest.TestCase):
             4.delete_memo
         """
         rv = self.get_user(self.username)
+        todo.app.logger.debug(json.loads(str(rv.data, 'utf-8')))
         result = json.loads(str(rv.data, 'utf-8'))
         user = json.loads(result['user'])
         self.assertEqual(self.username, user['username'], 'get_user error')
@@ -101,14 +109,18 @@ class TodoTestCase(unittest.TestCase):
         self.assertNotEqual(0, result['todo_memo_id'], 'add_memo error')
 
         rv = self.get_memos(user['id'])
-        memos = json.loads(str(rv.data, 'utf-8'))
+        result = json.loads(str(rv.data, 'utf-8'))
+        memos = result['memos']
+        todo.app.logger.debug('memos :{0}'.format(memos))
         self.assertLess(0, len(memos), 'get_memos erro')
 
         for memo in memos:
             rv = self.update_memo(memo['user_id'], memo['id'], self.new_memo)
+            todo.app.logger.debug(json.loads(str(rv.data, 'utf-8')))
             update_result = json.loads(str(rv.data, 'utf-8'))
             new_memo = json.loads(update_result['memo'])
-            self.assertEqual(self.new_memo, new_memo['memo'], 'update_memo error')
+            self.assertEqual(
+                self.new_memo, new_memo['memo'], 'update_memo error')
 
         for memo in memos:
             rv = self.delete_memo(memo['user_id'], memo['id'])
@@ -116,6 +128,47 @@ class TodoTestCase(unittest.TestCase):
             self.assertEqual(0, delete_result['status'], 'delete_memo error')
 
         self.delete_user(self.username)
+
+    # test register
+    def test_register_user_return_correct_result(self):
+        username = 'user_a'
+        password = '111111'
+
+        rv = self.register_user(username, password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        # todo.app.logger.debug('result : {0}'.format(result))
+        self.assertEqual(ResultType.REGISTER_SECCESS, result['result'])
+
+    def test_register_user_return_username_is_exist_result(self):
+        username = 'user_b'
+        password = '111111'
+
+        rv = self.register_user(username, password)
+        rv = self.register_user(username, password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.USER_EXIST_ERROR, result['result'])
+
+    def test_register_user_return_username_is_none_result(self):
+        username = ''
+        password = '111111'
+
+        rv = self.register_user(username, password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.USERNAME_IS_NONE_ERROR, result['result'])
+
+    def test_register_uset_return_password_is_none_result(self):
+        username = 'user_a'
+        password = ''
+
+        rv = self.register_user(username, password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.PASSWORD_IS_NONE_ERRPR, result['result'])
+
+    def _test_add_memo_return_correct_result(self):
+        pass
+
+    def _test_add_memo_return_no_user_error_result(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

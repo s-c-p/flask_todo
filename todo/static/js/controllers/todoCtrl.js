@@ -25,7 +25,10 @@ todomvc.controller('TodoCtrl', function TodoCtrl($scope, $http, $location, todoS
 function getMemos($scope, $http, $location, todoStorage, filterFilter) {
     $http.get('/todo/user/' + $scope.user_id + '/memos/').
         success(function(data, status) {
-            set_todo_controller($scope, $http, $location, todoStorage, filterFilter, data);
+            if (data['result'] != 'success') {
+                return;
+            }
+            set_todo_controller($scope, $http, $location, todoStorage, filterFilter, data['memos']);
         }).
         error(function(data, status) {
             console.log('edata : ' + data);

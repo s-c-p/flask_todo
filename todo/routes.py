@@ -5,6 +5,16 @@ from todo.models import TodoMemo, User
 from todo import memo
 
 
+class ResultType:
+    REGISTER_SECCESS = 'success'
+    USER_EXIST_ERROR = 'user_exist_error'
+    USERNAME_IS_NONE_ERROR = 'user_is_none_error'
+    PASSWORD_IS_NONE_ERRPR = 'password_is_none_error'
+    GET_MEMOS_SECCESS = 'success'
+    NO_USER_DATA = 'no_user_data'
+    ADD_MEMO_SECCESS = 'success'
+    ADD_MEMO_FAIL = 'add_memo_fail'
+
 @app.route('/todo/')
 def index():
     return app.send_static_file('index.html')
@@ -59,18 +69,21 @@ def users(username=None):
 
     elif request.method == 'POST':
 
-        if request.form['username'] is None or request.form['password'] is None:
-            return jsonify(status=-1)
+        if request.form['username'] is None or request.form['username'] == '':
+            return jsonify(result=ResultType.USERNAME_IS_NONE_ERROR)
+
+        if request.form['password'] is None or request.form['password'] == '':
+            return jsonify(result=ResultType.PASSWORD_IS_NONE_ERRPR)
 
         user = User.query.filter(
             User.username == request.form['username']).first()
 
         if user:
-            return jsonify(status=-1)
+            return jsonify(result=ResultType.USER_EXIST_ERROR)
 
         user = User(request.form['username'], request.form['password'])
         user.save()
-        return jsonify(status=0)
+        return jsonify(result=ResultType.REGISTER_SECCESS)
 
     elif request.method == 'DELETE':
 
@@ -103,7 +116,13 @@ def memos(user_id=None, memo_id=None):
 
         else:
             memos = memo.get_memos(user_id)
-            response = make_response(json.dumps(memos, default=to_json))
+            result = {}
+            result['result'] = ResultType.GET_MEMOS_SECCESS
+            result['memos'] = memos
+
+            app.logger.debug('result : {0}'.format(result))
+            app.logger.debug('result json.dumps: {0}'.format(json.dumps(result, default=to_json)))
+            response = make_response(json.dumps(result, default=to_json))
             response.headers['Content-Type'] = 'application/json'
             return response
 
