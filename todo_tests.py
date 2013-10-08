@@ -164,6 +164,39 @@ class TodoTestCase(unittest.TestCase):
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(ResultType.PASSWORD_IS_NONE_ERRPR, result['result'])
 
+    # test login
+    def test_login_return_correct_result(self):
+        username = 'user_c'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+
+        # login user
+        rv = self.login(username, password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.LOGIN_SECCESS, result['result'])
+
+    def test_login_return_no_user_result(self):
+        username = 'user_none'
+        password = '111111'
+        rv = self.login(username, password)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.LOGIN_NO_USER_DATA, result['result'])
+
+    def test_login_return_password_error_result(self):
+        username = 'user_d'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+        # login user
+        password_error = '222222'
+        rv = self.login(username, password_error)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.LOGIN_PASSWORD_ERROR, result['result'])
+
+
     def _test_add_memo_return_correct_result(self):
         pass
 

@@ -186,7 +186,7 @@ function setloginCtrl($scope, $http) {
             $http.post('/todo/login',  login_data).
                 success(function(data, status) {
 
-                    if (data['return_code'] === 0) {
+                    if (data['result'] == 'success') {
                         console.log(data);
                         $scope.user_id = data['user_id'];
                         $scope.logined = true;

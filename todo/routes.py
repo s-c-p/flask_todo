@@ -10,6 +10,11 @@ class ResultType:
     USER_EXIST_ERROR = 'user_exist_error'
     USERNAME_IS_NONE_ERROR = 'user_is_none_error'
     PASSWORD_IS_NONE_ERRPR = 'password_is_none_error'
+
+    LOGIN_SECCESS = 'success'
+    LOGIN_PASSWORD_ERROR = 'login_password_error'
+    LOGIN_NO_USER_DATA = 'login_no_user_data'
+
     GET_MEMOS_SECCESS = 'success'
     NO_USER_DATA = 'no_user_data'
     ADD_MEMO_SECCESS = 'success'
@@ -26,18 +31,17 @@ def login():
 
     if user:
         if request.form['password'] != user.password:
-            return_code = 2
-            error = 'Invalid password'
+            return jsonify(result=ResultType.LOGIN_PASSWORD_ERROR)
+
         else:
             session['username'] = user.username
             session['user_id'] = user.id
             session['logged_in'] = True
-            return jsonify(return_code=0, user_id=user.id, username=user.username)
-    else:
-        return_code = 1
-        error = 'Invalid username'
 
-    return jsonify(return_code=return_code, error_dic=error)
+            return jsonify(result=ResultType.LOGIN_SECCESS, user_id=user.id,
+                           username=user.username)
+    else:
+        return jsonify(result=ResultType.LOGIN_NO_USER_DATA)
 
 
 @app.route('/todo/logout')
