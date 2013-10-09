@@ -11,6 +11,9 @@ class ResultType:
     USERNAME_IS_NONE_ERROR = 'user_is_none_error'
     PASSWORD_IS_NONE_ERRPR = 'password_is_none_error'
 
+    GET_USER_SECCESS = 'success'
+    GET_USER_NO_DATA = 'get_user_no_data'
+
     LOGIN_SECCESS = 'success'
     LOGIN_PASSWORD_ERROR = 'login_password_error'
     LOGIN_NO_USER_DATA = 'login_no_user_data'
@@ -64,12 +67,22 @@ def users(username=None):
 
     if request.method == 'GET':
 
-        if username:
-            user = User.query.filter(User.username == username).first()
-            return jsonify(user=json.dumps(user, default=to_json))
+        if username is None:
+            return jsonify(result=ResultType.GET_USER_NO_DATA)
+
+        user = User.query.filter(User.username == username).first()
+
+        if user:
+            result = {}
+            result['result'] = ResultType.GET_USER_SECCESS
+            result['user'] = user
+
+            response = make_response(json.dumps(result, default=to_json))
+            response.headers['Content-Type'] = 'application/json'
+            return response
 
         else:
-            return jsonify(user=None)
+            return jsonify(result=ResultType.GET_USER_NO_DATA)
 
     elif request.method == 'POST':
 

@@ -48,26 +48,6 @@ class TodoTestCase(unittest.TestCase):
     def logout(self):
         return self.app.get('/todo/logout', follow_redirects=True)
 
-    def _test_login_logout(self):
-        """
-        test user action:
-            1.register
-            2.login
-            3.logout
-        """
-        rv = self.register_user(self.username, self.password)
-        result = json.loads(str(rv.data, 'utf-8'))
-        self.assertEqual(0, result['status'], 'register_user error')
-
-        rv = self.login(self.username, self.password)
-        todo.app.logger.debug(json.loads(str(rv.data, 'utf-8')))
-        result = json.loads(str(rv.data, 'utf-8'))
-        self.assertEqual(0, result['return_code'], 'logged error')
-
-        rv = self.logout()
-        result = json.loads(str(rv.data, 'utf-8'))
-        self.assertEqual(0, result['return_code'], 'logout error')
-
     def add_memo(self, user_id, memo):
         return self.app.post('/todo/user/' + str(user_id) + '/memos/', data=dict(
             memo=memo
@@ -156,13 +136,31 @@ class TodoTestCase(unittest.TestCase):
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(ResultType.USERNAME_IS_NONE_ERROR, result['result'])
 
-    def test_register_uset_return_password_is_none_result(self):
+    def test_register_user_return_password_is_none_result(self):
         username = 'user_a'
         password = ''
 
         rv = self.register_user(username, password)
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(ResultType.PASSWORD_IS_NONE_ERRPR, result['result'])
+
+    # test get user data
+    def test_get_user_return_correct_result(self):
+        username = 'user_for_get'
+        password = '111111'
+
+        self.register_user(username, password)
+
+        rv = self.get_user(username)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.GET_USER_SECCESS, result['result'])
+
+    def test_get_user_return_no_user_result(self):
+        username = 'user_for_get_error'
+
+        rv = self.get_user(username)
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertEqual(ResultType.GET_USER_NO_DATA, result['result'])
 
     # test login
     def test_login_return_correct_result(self):
@@ -196,8 +194,18 @@ class TodoTestCase(unittest.TestCase):
         result = json.loads(str(rv.data, 'utf-8'))
         self.assertEqual(ResultType.LOGIN_PASSWORD_ERROR, result['result'])
 
-
+    # test add memo
     def _test_add_memo_return_correct_result(self):
+        username = 'user_e'
+        password = '111111'
+
+        # register user
+        register_rv = self.register_user(username, password)
+        user_result = json.loads(str(register_rv.data, 'utf-8'))
+        # add memo
+        rv = self.add_memo(user_result['id'], 'test')
+        result = json.loads(str(rv.data, 'utf-8'))
+        self.assertNotEqual(0, result['todo_memo_id'], 'add_memo error')
         pass
 
     def _test_add_memo_return_no_user_error_result(self):
