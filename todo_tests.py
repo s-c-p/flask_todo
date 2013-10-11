@@ -195,21 +195,26 @@ class TodoTestCase(unittest.TestCase):
         self.assertEqual(ResultType.LOGIN_PASSWORD_ERROR, result['result'])
 
     # test add memo
-    def _test_add_memo_return_correct_result(self):
+    def test_add_memo_return_correct_result(self):
         username = 'user_e'
         password = '111111'
 
         # register user
-        register_rv = self.register_user(username, password)
-        user_result = json.loads(str(register_rv.data, 'utf-8'))
-        # add memo
-        rv = self.add_memo(user_result['id'], 'test')
-        result = json.loads(str(rv.data, 'utf-8'))
-        self.assertNotEqual(0, result['todo_memo_id'], 'add_memo error')
-        pass
+        self.register_user(username, password)
+        get_user_rv = self.get_user(username)
+        get_user_result = json.loads(str(get_user_rv.data, 'utf-8'))
+        user = get_user_result['user']
 
-    def _test_add_memo_return_no_user_error_result(self):
-        pass
+        # add memo
+        add_memo_rv = self.add_memo(user['id'], 'test')
+        add_memo_result = json.loads(str(add_memo_rv.data, 'utf-8'))
+        self.assertEqual(ResultType.ADD_MEMO_SECCESS, add_memo_result['result'])
+
+    def test_add_memo_return_no_user_error_result(self):
+        add_memo_rv = self.add_memo(9999999, 'test')
+        add_memo_result = json.loads(str(add_memo_rv.data, 'utf-8'))
+        self.assertEqual(ResultType.ADD_MEMO_NO_USER_DATA, add_memo_result['result'])
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

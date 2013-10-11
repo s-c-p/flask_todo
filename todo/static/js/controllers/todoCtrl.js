@@ -79,10 +79,12 @@ function set_todo_controller($scope, $http, $location, todoStorage, filterFilter
         $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
         $http.post('/todo/user/' + $scope.user_id + '/memos/',  memo_data).
             success(function(data, status) {
-                if (data['todo_memo_id'] !== 0) {
+                if (data['result'] == 'success') {
+                    var memo = data['memo'];
+
                     todos.splice(0, 0, {
-                        todo_memo_id : data['todo_memo_id'],
-                        title: newTodo,
+                        todo_memo_id : memo.id,
+                        title: memo.memo,
                         completed: false
                     });
                 }

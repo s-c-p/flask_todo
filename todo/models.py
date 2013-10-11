@@ -6,7 +6,7 @@ from todo.database import Base, db_session
 class TodoMemo(Base):
     __tablename__ = 'todo_memo'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, unique=True)
+    user_id = Column(Integer)
     memo = Column(String(50))
     state = Column(String(50))
     create_date = Column(DateTime)

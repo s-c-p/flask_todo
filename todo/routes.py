@@ -20,8 +20,9 @@ class ResultType:
 
     GET_MEMOS_SECCESS = 'success'
     NO_USER_DATA = 'no_user_data'
+
     ADD_MEMO_SECCESS = 'success'
-    ADD_MEMO_FAIL = 'add_memo_fail'
+    ADD_MEMO_NO_USER_DATA = 'add_memo_no_user_data'
 
 @app.route('/todo/')
 def index():
@@ -137,15 +138,27 @@ def memos(user_id=None, memo_id=None):
             result['result'] = ResultType.GET_MEMOS_SECCESS
             result['memos'] = memos
 
-            app.logger.debug('result : {0}'.format(result))
-            app.logger.debug('result json.dumps: {0}'.format(json.dumps(result, default=to_json)))
             response = make_response(json.dumps(result, default=to_json))
             response.headers['Content-Type'] = 'application/json'
             return response
 
     def add_memo():
-        todo_memo = memo.add_memo(user_id, request.form['memo'])
-        return jsonify(todo_memo_id=todo_memo.id)
+        user = User.query.filter(User.id == user_id).first()
+
+        if  user:
+            new_memo = memo.add_memo(user_id, request.form['memo'])
+
+            result = {}
+            result['result'] = ResultType.ADD_MEMO_SECCESS
+            result['memo'] = new_memo
+            response = make_response(json.dumps(result, default=to_json))
+            response.headers['Content-Type'] = 'application/json'
+            return response
+
+        else:
+            return jsonify(result=ResultType.ADD_MEMO_NO_USER_DATA)
+
+
 
     def delete_memo():
 
