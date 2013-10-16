@@ -19,7 +19,7 @@ class ResultType:
     LOGIN_NO_USER_DATA = 'login_no_user_data'
 
     GET_MEMOS_SECCESS = 'success'
-    NO_USER_DATA = 'no_user_data'
+    GET_MEMOS_NO_USER_DATA = 'get_memos_no_user_data'
 
     ADD_MEMO_SECCESS = 'success'
     ADD_MEMO_NO_USER_DATA = 'add_memo_no_user_data'
@@ -129,6 +129,11 @@ def memos(user_id=None, memo_id=None):
     """
 
     def get_memos():
+        user = User.query.filter(User.id == user_id).first()
+
+        if user is None:
+            return jsonify(result=ResultType.GET_MEMOS_NO_USER_DATA)
+
         if memo_id:
             return 'a single memo of user'
 

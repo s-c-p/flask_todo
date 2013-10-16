@@ -208,12 +208,40 @@ class TodoTestCase(unittest.TestCase):
         # add memo
         add_memo_rv = self.add_memo(user['id'], 'test')
         add_memo_result = json.loads(str(add_memo_rv.data, 'utf-8'))
-        self.assertEqual(ResultType.ADD_MEMO_SECCESS, add_memo_result['result'])
+        self.assertEqual(
+            ResultType.ADD_MEMO_SECCESS, add_memo_result['result'])
 
     def test_add_memo_return_no_user_error_result(self):
         add_memo_rv = self.add_memo(9999999, 'test')
         add_memo_result = json.loads(str(add_memo_rv.data, 'utf-8'))
-        self.assertEqual(ResultType.ADD_MEMO_NO_USER_DATA, add_memo_result['result'])
+        self.assertEqual(
+            ResultType.ADD_MEMO_NO_USER_DATA, add_memo_result['result'])
+
+    def test_get_memos_return_correct_result(self):
+        username = 'user_for_get_memos'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+        get_user_rv = self.get_user(username)
+        get_user_result = json.loads(str(get_user_rv.data, 'utf-8'))
+        user = get_user_result['user']
+
+        # add memo
+        self.add_memo(user['id'], 'test')
+
+        # get memos
+        get_memos_rv = self.get_memos(user['id'])
+        get_memos_result = json.loads(str(get_memos_rv.data, 'utf-8'))
+        self.assertEqual(
+            ResultType.GET_MEMOS_SECCESS, get_memos_result['result'])
+
+    def test_get_memos_return_no_user_error_result(self):
+        # get memos
+        get_memos_rv = self.get_memos(0)
+        get_memos_result = json.loads(str(get_memos_rv.data, 'utf-8'))
+        self.assertEqual(
+            ResultType.GET_MEMOS_NO_USER_DATA, get_memos_result['result'])
 
 
 if __name__ == '__main__':
