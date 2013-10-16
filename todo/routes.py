@@ -24,6 +24,11 @@ class ResultType:
     ADD_MEMO_SECCESS = 'success'
     ADD_MEMO_NO_USER_DATA = 'add_memo_no_user_data'
 
+    UPDATE_MEMO_SECCESS = 'success'
+    UPDATE_MEMO_NO_USER_DATA = 'update_memo_no_user_data'
+    UPDATE_MEMO_NO_MEMO_DATA = 'update_memo_no_memeo_data'
+
+
 @app.route('/todo/')
 def index():
     return app.send_static_file('index.html')
@@ -173,14 +178,24 @@ def memos(user_id=None, memo_id=None):
             return jsonify(status=-1)
 
     def update_memo():
+        user = User.query.filter(User.id == user_id).first()
+
+        if user is None:
+            return jsonify(result=ResultType.UPDATE_MEMO_NO_USER_DATA)
+
         todo_memo = memo.update_memo(user_id, memo_id,
                                      request.form['memo'],
                                      request.form['state'])
 
         if todo_memo:
-            return jsonify(memo=json.dumps(todo_memo, default=to_json))
+            result = {}
+            result['result'] = ResultType.UPDATE_MEMO_SECCESS
+            result['memo'] = todo_memo
+            response = make_response(json.dumps(result, default=to_json))
+            response.headers['Content-Type'] = 'application/json'
+            return response
         else:
-            return jsonify(memo=None)
+            return jsonify(result=ResultType.UPDATE_MEMO_NO_MEMO_DATA)
 
     if request.method == 'GET':
         return get_memos()

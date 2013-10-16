@@ -217,6 +217,7 @@ class TodoTestCase(unittest.TestCase):
         self.assertEqual(
             ResultType.ADD_MEMO_NO_USER_DATA, add_memo_result['result'])
 
+    # test get memos
     def test_get_memos_return_correct_result(self):
         username = 'user_for_get_memos'
         password = '111111'
@@ -242,6 +243,53 @@ class TodoTestCase(unittest.TestCase):
         get_memos_result = json.loads(str(get_memos_rv.data, 'utf-8'))
         self.assertEqual(
             ResultType.GET_MEMOS_NO_USER_DATA, get_memos_result['result'])
+
+    # test_update_memo
+    def test_update_memo_return_correct_result(self):
+        username = 'user_for_update_memo'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+        get_user_rv = self.get_user(username)
+        get_user_result = json.loads(str(get_user_rv.data, 'utf-8'))
+        user = get_user_result['user']
+
+        # add memo
+        self.add_memo(user['id'], 'test')
+
+        # get memos
+        get_memos_rv = self.get_memos(user['id'])
+        get_memos_result = json.loads(str(get_memos_rv.data, 'utf-8'))
+        memos = get_memos_result['memos']
+
+        for memo in memos:
+            update_memo_rv = self.update_memo(memo['user_id'], memo['id'],
+                                              self.new_memo)
+            update_result = json.loads(str(update_memo_rv.data, 'utf-8'))
+            self.assertEqual(
+                ResultType.UPDATE_MEMO_SECCESS, update_result['result'])
+
+    def test_update_memo_return_no_user_error_result(self):
+        update_memo_rv = self.update_memo(0, 0, self.new_memo)
+        update_result = json.loads(str(update_memo_rv.data, 'utf-8'))
+        self.assertEqual(
+            ResultType.UPDATE_MEMO_NO_USER_DATA, update_result['result'])
+
+    def test_update_memo_return_no_memo_data_result(self):
+        username = 'user_for_update_memo_a'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+        get_user_rv = self.get_user(username)
+        get_user_result = json.loads(str(get_user_rv.data, 'utf-8'))
+        user = get_user_result['user']
+
+        update_memo_rv = self.update_memo(user['id'], 0, self.new_memo)
+        update_result = json.loads(str(update_memo_rv.data, 'utf-8'))
+        self.assertEqual(
+            ResultType.UPDATE_MEMO_NO_MEMO_DATA, update_result['result'])
 
 
 if __name__ == '__main__':

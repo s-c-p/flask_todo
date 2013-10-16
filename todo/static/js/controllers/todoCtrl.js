@@ -170,7 +170,9 @@ function updataMemoData($scope, $http, todo) {
     $http.defaults.headers.put["Content-Type"] = "application/x-www-form-urlencoded";
     $http.put('/todo/user/' + $scope.user_id + '/memos/' + todo.todo_memo_id,  memo_data).
         success(function(data, status) {
-            todo.title = todo.title.trim();
+            if (data['result'] == 'success') {
+                todo.title = todo.title.trim();
+            }
         }).
         error(function(data, status) {
             console.log('edata : ' + data);
