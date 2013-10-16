@@ -154,7 +154,7 @@ function removeMemoData ($scope, $http, todos, todo) {
     $http.delete('/todo/user/' + $scope.user_id + '/memos/' + todo.todo_memo_id).
         success(function(data, status) {
 
-            if (data['status'] === 0) {
+            if (data['result'] == 'success') {
                 todos.splice(todos.indexOf(todo), 1);
             }
         }).

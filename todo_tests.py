@@ -70,44 +70,6 @@ class TodoTestCase(unittest.TestCase):
             state=state
             ), follow_redirects=True)
 
-    def _test_memo_operation(self):
-        """
-        test memo operation:
-            1.add_memo
-            2.get_memos
-            3.update_memo
-            4.delete_memo
-        """
-        rv = self.get_user(self.username)
-        todo.app.logger.debug(json.loads(str(rv.data, 'utf-8')))
-        result = json.loads(str(rv.data, 'utf-8'))
-        user = json.loads(result['user'])
-        self.assertEqual(self.username, user['username'], 'get_user error')
-
-        rv = self.add_memo(user['id'], 'test')
-        result = json.loads(str(rv.data, 'utf-8'))
-        self.assertNotEqual(0, result['todo_memo_id'], 'add_memo error')
-
-        rv = self.get_memos(user['id'])
-        result = json.loads(str(rv.data, 'utf-8'))
-        memos = result['memos']
-        todo.app.logger.debug('memos :{0}'.format(memos))
-        self.assertLess(0, len(memos), 'get_memos erro')
-
-        for memo in memos:
-            rv = self.update_memo(memo['user_id'], memo['id'], self.new_memo)
-            todo.app.logger.debug(json.loads(str(rv.data, 'utf-8')))
-            update_result = json.loads(str(rv.data, 'utf-8'))
-            new_memo = json.loads(update_result['memo'])
-            self.assertEqual(
-                self.new_memo, new_memo['memo'], 'update_memo error')
-
-        for memo in memos:
-            rv = self.delete_memo(memo['user_id'], memo['id'])
-            delete_result = json.loads(str(rv.data, 'utf-8'))
-            self.assertEqual(0, delete_result['status'], 'delete_memo error')
-
-        self.delete_user(self.username)
 
     # test register
     def test_register_user_return_correct_result(self):
@@ -262,7 +224,6 @@ class TodoTestCase(unittest.TestCase):
         get_memos_rv = self.get_memos(user['id'])
         get_memos_result = json.loads(str(get_memos_rv.data, 'utf-8'))
         memos = get_memos_result['memos']
-
         for memo in memos:
             update_memo_rv = self.update_memo(memo['user_id'], memo['id'],
                                               self.new_memo)
@@ -290,6 +251,51 @@ class TodoTestCase(unittest.TestCase):
         update_result = json.loads(str(update_memo_rv.data, 'utf-8'))
         self.assertEqual(
             ResultType.UPDATE_MEMO_NO_MEMO_DATA, update_result['result'])
+
+    def test_delete_memo_return_correct_result(self):
+        username = 'user_for_delete_memo'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+        get_user_rv = self.get_user(username)
+        get_user_result = json.loads(str(get_user_rv.data, 'utf-8'))
+        user = get_user_result['user']
+
+        # add memo
+        self.add_memo(user['id'], 'test')
+
+        # get memos
+        get_memos_rv = self.get_memos(user['id'])
+        get_memos_result = json.loads(str(get_memos_rv.data, 'utf-8'))
+        memos = get_memos_result['memos']
+
+        for memo in memos:
+            delete_memo_rv = self.delete_memo(memo['user_id'], memo['id'])
+            delete_result = json.loads(str(delete_memo_rv.data, 'utf-8'))
+            self.assertEqual(
+                ResultType.DELETE_MEMO_SECCESS, delete_result['result'])
+
+    def test_delete_memo_return_no_user_error_result(self):
+        delete_memo_rv = self.delete_memo(0, 0)
+        delete_result = json.loads(str(delete_memo_rv.data, 'utf-8'))
+        self.assertEqual(
+            ResultType.DELETE_MEMO_NO_USER_DATA, delete_result['result'])
+
+    def test_delete_memo_return_no_memo_data_result(self):
+        username = 'user_for_delete_memo_A'
+        password = '111111'
+
+        # register user
+        self.register_user(username, password)
+        get_user_rv = self.get_user(username)
+        get_user_result = json.loads(str(get_user_rv.data, 'utf-8'))
+        user = get_user_result['user']
+
+        delete_memo_rv = self.delete_memo(user['id'], 0, )
+        delete_result = json.loads(str(delete_memo_rv.data, 'utf-8'))
+        self.assertEqual(
+            ResultType.DELETE_MEMO_NO_MEMO_DATA, delete_result['result'])
 
 
 if __name__ == '__main__':

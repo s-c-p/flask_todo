@@ -28,6 +28,9 @@ class ResultType:
     UPDATE_MEMO_NO_USER_DATA = 'update_memo_no_user_data'
     UPDATE_MEMO_NO_MEMO_DATA = 'update_memo_no_memeo_data'
 
+    DELETE_MEMO_SECCESS = 'success'
+    DELETE_MEMO_NO_USER_DATA = 'delete_memo_no_user_data'
+    DELETE_MEMO_NO_MEMO_DATA = 'delete_memo_no_memo_data'
 
 @app.route('/todo/')
 def index():
@@ -171,11 +174,15 @@ def memos(user_id=None, memo_id=None):
 
 
     def delete_memo():
+        user = User.query.filter(User.id == user_id).first()
+
+        if user is None:
+            return jsonify(result=ResultType.DELETE_MEMO_NO_USER_DATA)
 
         if memo.delete_memo(user_id, memo_id):
-            return jsonify(status=0)
+            return jsonify(result=ResultType.DELETE_MEMO_SECCESS)
         else:
-            return jsonify(status=-1)
+            return jsonify(result=ResultType.DELETE_MEMO_NO_MEMO_DATA)
 
     def update_memo():
         user = User.query.filter(User.id == user_id).first()
