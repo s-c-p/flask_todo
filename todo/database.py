@@ -16,6 +16,9 @@ def init_db(database_uri):
     Base = declarative_base()
     Base.query = db_session.query_property()
     import todo.models
+    create_all_table()
+
+def create_all_table():
     Base.metadata.create_all(bind=engine)
 
 def drop_all_table():
