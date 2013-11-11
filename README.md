@@ -18,11 +18,21 @@
     sudo apt-get install python3.3
     #check python version
     python --version
+    
+確認您有 virtualenv
+
+    sudo apt-get install python-virtualenv
+    virtualenv .env3 --python=python3.3
+    source .env3/bin/activate
 
 確認您有 Flask 的正確版本
 
     #install Flask latest version (0.10)
     pip install Flask
+    
+確認您有 sqlalchemy 的正確版本
+
+    pip install sqlalchemy
 
 安裝 MariaDB
 
@@ -40,7 +50,7 @@
 安裝 uwsgi
 
     #install python-dev
-    apt-get install python-dev
+    sudo apt-get install python-dev
 
     #install uwsgi
     pip install uwsgi
