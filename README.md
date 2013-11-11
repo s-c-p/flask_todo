@@ -4,7 +4,7 @@
 
 [測試網站](http://172.18.101.16/todo/) (測試帳號 : wes 測試密碼 : 123456)
 
-![image](http://rtd.softstar.com.tw/softstar-web-technique/flask-todo/raw/master/doc/images/todo_login.jpg)
+![image](../doc/images/todo_login.jpg)
 
 [supervisor status](http://172.18.101.16:9001/)(測試帳號 : user 測試密碼 : 123)
 
