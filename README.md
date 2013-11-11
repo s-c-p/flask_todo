@@ -46,6 +46,14 @@
 
     #install PyMysql3
     pip install pymysql3
+    
+安裝 Redis
+    
+    sudo apt-get install redis-server
+    
+安裝 Redis driver
+
+    pip install redis
 
 安裝 uwsgi
 
