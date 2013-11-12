@@ -2,11 +2,11 @@
 
 簡易的事件備忘錄，提供新增、更新、刪除、過濾的功能
 
-[測試網站](http://172.18.101.16/todo/) (測試帳號 : wes 測試密碼 : 123456)
+[測試網站](http://ec2-54-238-225-130.ap-northeast-1.compute.amazonaws.com/todo) (測試帳號 : wes 測試密碼 : 123456)
 
 ![image](https://raw.github.com/wesgt/flask_todo/master/doc/images/todo_login.jpg)
 
-[supervisor status](http://172.18.101.16:9001/)(測試帳號 : user 測試密碼 : 123)
+[supervisor status](http://ec2-54-238-225-130.ap-northeast-1.compute.amazonaws.com:9001/)(測試帳號 : user 測試密碼 : 123)
 
 ## Use Steps
 
@@ -106,29 +106,35 @@ Config supervisord.cnf
 
     #Adding a Program
     [program:todo]
-    command=/home/rdadmmin/py33ENV/bin/uwsgi -H /home/rdadmmin/py33ENV -s /home/rdadmmin/tmp/uwsgi.sock --module todo_main --callable app --pp /home/rdadmmin/py33ENV/test/ --chmod-socket
-    user=rdadmin
-    directory=/home/rdadmmin/py33ENV/flask-todo/
-    stderr_logfile = /home/rdadmmin/tmp/supervisor_todo_err.log
-    stdout_logfile = /home/rdadmmin/tmp/supervisor_todo_out.log
+    command=/home/ubuntu/.env33/bin/uwsgi -H /home/ubuntu/.env33 -s /home/ubuntu/webapp/flask-todo/uwsgi.sock --module todo_main --callable app --pp /home/ubuntu/webapp/flask-todo/ --chmod-socket
+    user=ubuntu
+    directory=/home/ubuntu/webapp/flask-todo/
+    stderr_logfile = /home/ubuntu/webapp/flask-todo/supervisor_todo_err.log
+    stdout_logfile = /home/ubuntu/webapp/flask-todo/supervisor_todo_out.log
 
-Run supervisor
+Run supervisor & Check status
 
-    run $BINDIR/supervisord
+    #start
+    supervisord
+    #restart
+    ps aux | grep supervisord
+    kill -HUP xxxx
+    #check status
+    supervisorctl -u user -p 123 status todo
 
 Nginx config
-
-    upstream gunicorn_flask_server {
-        server unix:/home/rdadmmin/py33ENV/flask-todo/gunicorn_flask.sock fail_timeout=0;
-    }
 
     location = /todo { rewrite ^ /todo/; }
     location /todo/ { try_files $uri @todo; }
     location @todo {
-       include uwsgi_params;
-       uwsgi_param SCRIPT_NAME /todo;
-       uwsgi_modifier1 30;
-       uwsgi_pass unix:/home/rdadmmin/tmp/uwsgi.sock;
+        include uwsgi_params;
+        uwsgi_param SCRIPT_NAME /todo;
+        uwsgi_modifier1 30;
+        uwsgi_pass unix:/home/ubuntu/webapp/flask-todo/uwsgi.sock;
+    }
+
+    location /static/ {
+        alias /home/ubuntu/webapp/flask-todo/todo/static/;
     }
 
 Nginx restart
